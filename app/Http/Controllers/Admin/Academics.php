@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\ClassName;
 use App\Models\Admin\Section;
+use App\Models\Admin\Subject;
 use Illuminate\Http\Request;
 
 class Academics extends Controller
@@ -38,11 +39,37 @@ class Academics extends Controller
         $class->classname  = $request->className;
         $class->teacher  = $request->teacher;
         $class->save();
-        return response()->json(['message' => 'Class Created Sucessfully!'], 200);
+        return response()->json(['message' => 'Subject Created Sucessfully!'], 200);
     }
 
     public function GetClass(){
         $class = ClassName::with('sections', 'teachers')->get();
         return response()->json($class, 200);
+    }
+
+    public function AddSubject(Request $request){
+        $request->validate([
+            'subject' => 'required',
+            'section' => 'required',
+            'teacher' => 'required',
+        ]);
+
+        $class = new Subject();
+        $class->section  = $request->section;
+        $class->subject  = $request->subject;
+        $class->teacher  = $request->teacher;
+        $class->save();
+        return response()->json(['message' => 'Class Created Sucessfully!'], 200);
+    }
+
+    public function GetSubject(){
+        $class = Subject::with('sections', 'teachers')->get();
+        return response()->json($class, 200);
+    }
+
+    public function DeleteSubject($id){
+        $subject = Subject::find($id);
+        $delete = $subject->delete();
+        return response()->json(['message' => 'Subject Deleted Suessfully!'], 200);
     }
 }

@@ -60,6 +60,9 @@ Route::middleware(['auth:sanctum'])->group(
         Route::get('/sections', [Academics::class, 'GetSection']);
         Route::post('/add-class', [Academics::class, 'AddClass']);
         Route::get('/classes', [Academics::class, 'GetClass']);
+        Route::post('/add-subject', [Academics::class, 'AddSubject']);
+        Route::get('/subjects', [Academics::class, 'GetSubject']);
+        Route::delete('/subjects/{id}', [Academics::class, 'DeleteSubject']);
         // Academics
     }
 );
