@@ -14,7 +14,7 @@ class Student extends Model
     {
         return $this->belongsTo(ClassName::class, 'class_name_id');
     }
-
+ 
     public function section()
     {
         return $this->belongsTo(Section::class, 'section');

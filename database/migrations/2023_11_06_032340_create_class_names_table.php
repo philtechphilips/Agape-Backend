@@ -11,13 +11,15 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up() 
+    public function up()
     {
         Schema::create('class_names', function (Blueprint $table) {
             $table->id();
             $table->string('classname');
             $table->integer('section');
+            $table->foreign('section')->references('id')->on('sections');
             $table->integer('teacher');
+            $table->foreign('teacher')->references('id')->on('staff');
             $table->timestamps();
         });
     }

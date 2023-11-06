@@ -42,7 +42,7 @@ class Academics extends Controller
     }
 
     public function GetClass(){
-        $class = ClassName::all();
+        $class = ClassName::with('sections', 'teachers')->get();
         return response()->json($class, 200);
     }
 }

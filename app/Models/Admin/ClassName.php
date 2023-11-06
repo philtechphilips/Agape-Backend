@@ -12,11 +12,11 @@ class ClassName extends Model
 
     public function sections()
     {
-        return $this->belongsTo(Section::class, 'id', 'section');
+        return $this->belongsTo(Section::class, 'section');
     }
 
-    public function students()
+    public function teachers()
     {
-        return $this->hasMany(Student::class, 'className');
+        return $this->belongsTo(Staff::class, 'teacher');
     }
 }
