@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\Academics;
 use App\Http\Controllers\Admin\Dashboard;
+use App\Http\Controllers\Admin\Examination;
 use App\Http\Controllers\Admin\Profiles;
 use App\Http\Controllers\Admin\Schedule;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -60,14 +61,23 @@ Route::middleware(['auth:sanctum'])->group(
         Route::get('/sections', [Academics::class, 'GetSection']);
         Route::post('/add-class', [Academics::class, 'AddClass']);
         Route::get('/classes', [Academics::class, 'GetClass']);
+
         Route::post('/add-subject', [Academics::class, 'AddSubject']);
         Route::get('/subjects', [Academics::class, 'GetSubject']);
+        Route::get('/subjects/{id}', [Academics::class, 'GetSubjectById']);
+
         Route::get('/term', [Academics::class, 'GetTerm']);
         Route::post('/session', [Academics::class, 'AddSession']);
         Route::get('/session', [Academics::class, 'GetSession']);
         Route::delete('/session/{id}', [Academics::class, 'DeleteSession']);
         Route::delete('/subjects/{id}', [Academics::class, 'DeleteSubject']);
         // Academics
+
+
+        // Examination
+        Route::get('/exam', [Examination::class, 'GetExam']);
+        Route::post('/first-term-exam', [Examination::class, 'FirstTermResult']);
+        // Examination
     }
 );
 

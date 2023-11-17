@@ -68,6 +68,11 @@ class Academics extends Controller
         return response()->json($class, 200);
     }
 
+    public function GetSubjectById($id){
+        $subject = Subject::with('sections', 'teachers')->where("id", "=", $id)->get();
+        return response()->json($subject, 200);
+    }
+
     public function DeleteSubject($id){
         $subject = Subject::find($id);
         $delete = $subject->delete();
