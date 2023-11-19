@@ -101,4 +101,52 @@ class Examination extends Controller
 
         return response()->json(['message' => 'Results Uploaded Successfully!'], 200);
     }
+
+    public function FetchResultToEdit($session, $class, $exam, $subject)
+    {
+        $examResults = FirstTermResults::with(['exam', 'session', 'class', 'student', 'term'])
+        ->where('session', $session)
+        ->where('classId', $class)
+        ->where('examId', $exam)
+        ->where('subject', $subject)
+        ->get();
+        return response()->json($examResults, 200);
+    }
+
+    public function UpdateFirstTermResult(Request $request)
+    {
+        foreach ($request->selectedData as $result) {
+            $total = $result['caMarks'] + $result['examMarks'];
+
+
+            $section = Section::find($result['section']);
+            $student_section = $section->section;
+
+            $results = $this->calculateGradeAndRemarks($student_section, $total);
+            $grade = $results['grade'];
+            $remarks = $results['remarks'];
+
+            $existingRecord = FirstTermResults::where([
+                'stuId' => $result['stuId'],
+                'subject' => $result['subject'],
+                'termId' => $result['term'],
+                'examId' => $result['exam'],
+                'section' => $result['section'],
+            ])->first();
+
+            if (!$existingRecord) {
+                return response()->json(['message' => 'Record not found!'], 404);
+            }
+
+            $existingRecord->update([
+                'ca' => $result['caMarks'],
+                'exam_mark' => $result['examMarks'],
+                'grade' => $grade,
+                'remarks' => $remarks,
+                'total' => $total,
+            ]);
+        }
+
+        return response()->json(['message' => 'Results Updated Successfully!'], 200);
+    }
 }
