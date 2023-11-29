@@ -80,6 +80,14 @@ Route::middleware(['auth:sanctum'])->group(
         Route::get('/get-result/{session}/{class}/{exam}/{subject}', [Examination::class, 'FetchResultToEdit']);
         Route::patch('/first-term-result', [Examination::class, 'UpdateFirstTermResult']);
         // Examination
+
+        // Comment
+        Route::post('/comment', [Examination::class, 'CreateComment']);
+        // Comment
+
+         // Appraisal
+         Route::post('/appraisal', [Examination::class, 'CreateAppraisal']);
+         // Appraisal
     }
 );
 

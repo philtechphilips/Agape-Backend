@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Appraisal;
+use App\Models\Admin\Comment;
 use App\Models\Admin\Exam;
 use App\Models\Admin\FirstTermResults;
 use App\Models\Admin\Section;
+use App\Models\Admin\Session;
+use App\Models\Admin\Term;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -148,5 +152,78 @@ class Examination extends Controller
         }
 
         return response()->json(['message' => 'Results Updated Successfully!'], 200);
+    }
+
+    public function CreateComment(Request $request)
+    {
+        foreach ($request->selectedData as $result) {
+            $session = Session::where("id", "=", $result['session'])->first();
+            $term = Term::where("id", "=", $session->term)->first();
+
+            $existingRecord = Comment::where([
+                'stuId' => $result['stuId'],
+                'termId' => $session->term,
+                'examId' => $result['exam'],
+                'session' => $result['session'],
+                'comment_type' => $result['comment_type'],
+            ])->first();
+
+            if ($existingRecord) {
+                return response()->json(['message' => 'One of the comment exist!'], 400);
+            }
+
+            $comment = new Comment();
+            $comment->stuId = $result['stuId'];
+            $comment->surname = $result['surname'];
+            $comment->firstname = $result['firstname'];
+            $comment->comment = $result['comment'];
+            $comment->comment_type = $result['comment_type'];
+            $comment->classId = $result['classId'];
+            $comment->session = $result['session'];
+            $comment->termId = $session->term;
+            $comment->term = $term->term;
+            $comment->examId = $result['exam'];
+            $comment->save();
+        }
+
+        return response()->json(['message' => 'Comment Uploaded Successfully!'], 200);
+    }
+
+    public function CreateAppraisal(Request $request)
+    {
+        foreach ($request->selectedData as $result) {
+            $session = Session::where("id", "=", $result['session'])->first();
+            $term = Term::where("id", "=", $session->term)->first();
+
+            $existingRecord = Appraisal::where([
+                'stuId' => $result['stuId'],
+                'termId' => $session->term,
+                'examId' => $result['exam'],
+                'session' => $result['session'],
+            ])->first();
+
+            if ($existingRecord) {
+                return response()->json(['message' => 'One of the appraisal exist!'], 400);
+            }
+
+            $appraisal = new Appraisal();
+            $appraisal->stuId = $result['stuId'];
+            $appraisal->surname = $result['surname'];
+            $appraisal->firstname = $result['firstname'];
+            $appraisal->punctuality = $result['punctuality'];
+            $appraisal->neatness = $result['neatness'];
+            $appraisal->respect = $result['respect'];
+            $appraisal->interractions = $result['interractions'];
+            $appraisal->sport = $result['sport'];
+            $appraisal->initiative = $result['initiative'];
+            $appraisal->classId = $result['classId'];
+            $appraisal->session = $result['session'];
+            $appraisal->termId = $session->term;
+            $appraisal->term = $term->term;
+            $appraisal->examId = $result['exam'];
+            $appraisal->save();
+        }
+
+        return response()->json(['message' => 'Appraisal Uploaded Successfully!'], 200);
     }
 }
