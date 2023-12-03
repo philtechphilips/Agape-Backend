@@ -40,6 +40,8 @@ Route::middleware(['auth:sanctum'])->group(
         Route::post('/create-parent-profile', [Profiles::class, 'AddParent']);
         Route::post('/create-admin-profile', [Profiles::class, 'AddAdmin']);
         Route::post('/create-student-profile', [Profiles::class, 'AddStudent']);
+        Route::patch('/student-passport/{id}', [Profiles::class, 'UploadStudentPassport']);
+        Route::patch('/update-student/{id}', [Profiles::class, 'UpdateStudent']);
 
         Route::get('/all-staff', [Profiles::class, 'AllStaff']);
         Route::get('/all-parent', [Profiles::class, 'AllParent']);

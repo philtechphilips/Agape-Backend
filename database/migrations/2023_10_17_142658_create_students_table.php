@@ -32,6 +32,7 @@ return new class extends Migration
             $table->string('adDate');
             $table->string('rollNumber');
             $table->string('address');
+            $table->string('imageUrl')->nullable();
             $table->unsignedBigInteger('parent_id');
             $table->foreign('parent_id')->references('id')->on('guardians')->onDelete('cascade');
             $table->unsignedBigInteger('user_id');

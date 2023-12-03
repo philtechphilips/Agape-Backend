@@ -10,6 +10,7 @@ use App\Models\Admin\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use JD\Cloudder\Facades\Cloudder;
 
 class Profiles extends Controller
 {
@@ -65,6 +66,52 @@ class Profiles extends Controller
         }
         return response()->json(['message' => 'Student Profile Created Sucessfully!'], 200);
     }
+
+    public function UpdateStudent(Request $request, $id){
+        $request->validate([
+            'surname' => 'required|string|max:225',
+            'firstname' => 'required',
+            'middlename' => 'required|string|max:225',
+            'city' => 'required|string|max:225',
+            'gender' => 'required',
+            'dob' => 'required|string|max:225',
+            'adNum' => 'required|string|max:225',
+            'adDate' => 'required|string|max:225',
+            'rollNumber' => 'required',
+            'address' => 'required|string'
+        ]);
+
+        $student = Student::find($id);
+
+        if (!$student) {
+            return response()->json(['message' => 'Student not found'], 404);
+        }
+
+        $user = User::where('email', $student->adNum)->first();
+        if ($user) {
+            $user->update([
+                'name' => $request->surname .' '. $request->firstname .' '. $request->middlename,
+                'email' => $request->adNum
+            ]);
+        }
+
+        $student->update([
+            'surname' => $request->surname,
+            'firstname' => $request->firstname,
+            'middlename' => $request->middlename,
+            'city' => $request->city,
+            'gender' => $request->gender,
+            'dob' => $request->dob,
+            'adNum' => $request->adNum,
+            'adDate' => $request->adDate,
+            'rollNumber' => $request->rollNumber,
+            'address' => $request->address
+        ]);
+
+        return response()->json(['message' => 'Student Profile Updated Successfully!'], 200);
+    }
+
+
 
 
     public function AddStaff(Request $request){
@@ -193,5 +240,23 @@ class Profiles extends Controller
         $user = User::find($admin->user_id);
         $delete = $user->delete();
         return response()->json(['message' => 'User Deleted Suessfully!'], 200);
+    }
+
+    public function UploadStudentPassport(Request $request, $id){
+        $this->validate($request,[
+            'image'=>'required',
+        ]);
+
+        $student = Student::find($id);
+
+        if (!$student) {
+            return response()->json(['message' => 'Student not found'], 404);
+        }
+
+        $student->update([
+            'imageUrl' => $request->image,
+        ]);
+
+        return response()->json(['message' => 'Passport uploaded Suessfully!'], 200);
     }
 }
