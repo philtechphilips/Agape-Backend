@@ -9,6 +9,7 @@ use App\Models\Admin\Exam;
 use App\Models\Admin\FirstTermResults;
 use App\Models\Admin\Section;
 use App\Models\Admin\Session;
+use App\Models\Admin\Student;
 use App\Models\Admin\Term;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -109,11 +110,11 @@ class Examination extends Controller
     public function FetchResultToEdit($session, $class, $exam, $subject)
     {
         $examResults = FirstTermResults::with(['exam', 'session', 'class', 'student', 'term'])
-        ->where('session', $session)
-        ->where('classId', $class)
-        ->where('examId', $exam)
-        ->where('subject', $subject)
-        ->get();
+            ->where('session', $session)
+            ->where('classId', $class)
+            ->where('examId', $exam)
+            ->where('subject', $subject)
+            ->get();
         return response()->json($examResults, 200);
     }
 
@@ -225,5 +226,46 @@ class Examination extends Controller
         }
 
         return response()->json(['message' => 'Appraisal Uploaded Successfully!'], 200);
+    }
+
+    public function GetReportCard(Request $request)
+    {
+        $session = Session::where('id', $request->session)->with("term")->first();
+
+        $result = FirstTermResults::where([
+            ['examId', $request->exam],
+            ['classId', $request->classes],
+            ['stuId', $request->student],
+            ['session', $request->session],
+        ])->get();
+
+        $appraisal = Appraisal::where([
+            ['examId', $request->exam],
+            ['classId', $request->classes],
+            ['stuId', $request->student],
+            ['session', $request->session],
+        ])->first();
+
+        $teachersComment = Comment::where([
+            ['examId', $request->exam],
+            ['classId', $request->classes],
+            ['stuId', $request->student],
+            ['session', $request->session],
+            ['comment_type', "teacher"],
+        ])->first();
+
+        $principalsComment = Comment::where([
+            ['examId', $request->exam],
+            ['classId', $request->classes],
+            ['stuId', $request->student],
+            ['session', $request->session],
+            ['comment_type', "principal"],
+        ])->first();
+
+        $StudentsInClass = Student::where([
+            ['class_name_id', $request->classes]
+        ])->count();
+
+        return response()->json(['session' => $session, 'result' => $result, 'student' => $StudentsInClass, "t_comment" => $teachersComment, "p_comment" => $principalsComment, "appraisal" => $appraisal], 200);
     }
 }

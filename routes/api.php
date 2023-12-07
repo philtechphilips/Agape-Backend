@@ -81,6 +81,7 @@ Route::middleware(['auth:sanctum'])->group(
         Route::post('/first-term-exam', [Examination::class, 'FirstTermResult']);
         Route::get('/get-result/{session}/{class}/{exam}/{subject}', [Examination::class, 'FetchResultToEdit']);
         Route::patch('/first-term-result', [Examination::class, 'UpdateFirstTermResult']);
+        Route::get('/fetch-report-card', [Examination::class, 'GetReportCard']);
         // Examination
 
         // Comment
