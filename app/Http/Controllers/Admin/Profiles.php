@@ -39,7 +39,7 @@ class Profiles extends Controller
             'name' => $request->surname .' '. $request->firstname .' '. $request->middlename,
             'email' => $request->adNum,
             'role' => 'student',
-            'password' => strtolower(Hash::make($request->surname)),
+            'password' => Hash::make(strtolower($request->surname)),
         ]);
 
         if($user){

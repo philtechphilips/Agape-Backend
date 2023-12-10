@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
 
 class MobileAuth extends Controller
@@ -22,11 +23,12 @@ class MobileAuth extends Controller
         ]);
 
         $user = User::where('email', $request->email)->first();
-
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
+        Log::info($request->password);
+        Log::info($user->password);
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
                 'email' => ['The provided credentials are incorrect.'],
-            ]);
+            ], 422);
         }
 
         return ['user' => $user, 'token' => $user->createToken($request->device_name)->plainTextToken];
