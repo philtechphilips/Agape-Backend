@@ -91,7 +91,8 @@ class Profiles extends Controller
         if ($user) {
             $user->update([
                 'name' => $request->surname .' '. $request->firstname .' '. $request->middlename,
-                'email' => $request->adNum
+                'email' => $request->adNum,
+                'password' => Hash::make(strtolower($request->surname)),
             ]);
         }
 

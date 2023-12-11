@@ -7,6 +7,7 @@ use App\Models\Admin\Appraisal;
 use App\Models\Admin\Comment;
 use App\Models\Admin\Exam;
 use App\Models\Admin\FirstTermResults;
+use App\Models\Admin\Result;
 use App\Models\Admin\Section;
 use App\Models\Admin\Session;
 use App\Models\Admin\Student;
@@ -72,6 +73,24 @@ class Examination extends Controller
             $results = $this->calculateGradeAndRemarks($student_section, $total);
             $grade = $results['grade'];
             $remarks = $results['remarks'];
+
+            $existingResultForTerm = Result::where([
+                'stuId' => $result['stuId'],
+                'termId' => $result['term']['id'],
+                'examId' => $result['exam'],
+                'session' => $result['session'],
+                'classId' => $result['classId'],
+            ])->first();
+
+            if(!$existingResultForTerm){
+                $term_result = new Result();
+                $term_result->stuId = $result['stuId'];
+                $term_result->termId = $result['term']['id'];
+                $term_result->examId = $result['exam'];
+                $term_result->session = $result['session'];
+                $term_result->classId = $result['classId'];
+                $term_result->save();
+            }
 
             $existingRecord = FirstTermResults::where([
                 'stuId' => $result['stuId'],
