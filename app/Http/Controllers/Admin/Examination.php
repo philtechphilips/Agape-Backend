@@ -137,6 +137,11 @@ class Examination extends Controller
         return response()->json($examResults, 200);
     }
 
+    public function FetchResult($session, $exam){
+        $result = Result::where("session", "=", $session)->where("examId", "=", $exam)->with("students")->get();
+        return response()->json($result, 200);
+    }
+
     public function UpdateFirstTermResult(Request $request)
     {
         foreach ($request->selectedData as $result) {

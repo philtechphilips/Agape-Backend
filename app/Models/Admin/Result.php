@@ -9,4 +9,9 @@ class Result extends Model
 {
     use HasFactory;
     protected $fillable = ['stuId', 'classId', 'session', 'termId', 'examId'];
+
+    public function students()
+    {
+        return $this->belongsTo(Student::class, 'stuId');
+    }
 }
