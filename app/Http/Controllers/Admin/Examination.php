@@ -137,8 +137,8 @@ class Examination extends Controller
         return response()->json($examResults, 200);
     }
 
-    public function FetchResult($session, $exam){
-        $result = Result::where("session", "=", $session)->where("examId", "=", $exam)->with("students")->get();
+    public function FetchResult($stuId){
+        $result = Result::where("stuId", "=", $stuId)->with(["session",  "term", "exam", "students.className"])->get();
         return response()->json($result, 200);
     }
 

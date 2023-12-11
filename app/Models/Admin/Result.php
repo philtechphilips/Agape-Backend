@@ -14,4 +14,19 @@ class Result extends Model
     {
         return $this->belongsTo(Student::class, 'stuId');
     }
+
+    public function session()
+    {
+        return $this->belongsTo(Session::class, 'session');
+    }
+
+    public function term()
+    {
+        return $this->belongsTo(Term::class, 'termId');
+    }
+
+    public function exam()
+    {
+        return $this->belongsTo(Exam::class, 'examId');
+    }
 }

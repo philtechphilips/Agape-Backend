@@ -47,6 +47,7 @@ Route::middleware(['auth:sanctum'])->group(
         Route::get('/all-parent', [Profiles::class, 'AllParent']);
         Route::get('/all-admin', [Profiles::class, 'AllAdmin']);
         Route::get('/students/{classes}', [Profiles::class, 'GetStudents']);
+        Route::get('/student/{id}', [Profiles::class, 'GetStudentById']);
 
         Route::delete('/delete-parent/{id}', [Profiles::class, 'DeleteParent']);
         Route::delete('/delete-admin/{id}', [Profiles::class, 'DeleteAdmin']);
@@ -82,7 +83,7 @@ Route::middleware(['auth:sanctum'])->group(
         Route::get('/get-result/{session}/{class}/{exam}/{subject}', [Examination::class, 'FetchResultToEdit']);
         Route::patch('/first-term-result', [Examination::class, 'UpdateFirstTermResult']);
         Route::get('/fetch-report-card', [Examination::class, 'GetReportCard']);
-        Route::get('/fetch-result/{session}/{exam}', [Examination::class, 'FetchResult']);
+        Route::get('/fetch-result/{stuId}', [Examination::class, 'FetchResult']);
         // Examination
 
         // Comment

@@ -10,11 +10,13 @@ use App\Models\Admin\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use JD\Cloudder\Facades\Cloudder;
 
 class Profiles extends Controller
 {
-    public function AddStudent(Request $request){
+    public function AddStudent(Request $request)
+    {
         $request->validate([
             'surname' => 'required|string|max:225',
             'firstname' => 'required',
@@ -36,13 +38,13 @@ class Profiles extends Controller
         ]);
 
         $user = User::create([
-            'name' => $request->surname .' '. $request->firstname .' '. $request->middlename,
+            'name' => $request->surname . ' ' . $request->firstname . ' ' . $request->middlename,
             'email' => $request->adNum,
             'role' => 'student',
             'password' => Hash::make(strtolower($request->surname)),
         ]);
 
-        if($user){
+        if ($user) {
             Student::create([
                 'surname' => $request->surname,
                 'firstname' => $request->firstname,
@@ -67,7 +69,8 @@ class Profiles extends Controller
         return response()->json(['message' => 'Student Profile Created Sucessfully!'], 200);
     }
 
-    public function UpdateStudent(Request $request, $id){
+    public function UpdateStudent(Request $request, $id)
+    {
         $request->validate([
             'surname' => 'required|string|max:225',
             'firstname' => 'required',
@@ -90,7 +93,7 @@ class Profiles extends Controller
         $user = User::where('email', $student->adNum)->first();
         if ($user) {
             $user->update([
-                'name' => $request->surname .' '. $request->firstname .' '. $request->middlename,
+                'name' => $request->surname . ' ' . $request->firstname . ' ' . $request->middlename,
                 'email' => $request->adNum,
                 'password' => Hash::make(strtolower($request->surname)),
             ]);
@@ -115,7 +118,8 @@ class Profiles extends Controller
 
 
 
-    public function AddStaff(Request $request){
+    public function AddStaff(Request $request)
+    {
         $request->validate([
             'surname' => 'required|string|max:225',
             'firstname' => 'required|string|max:225',
@@ -125,13 +129,13 @@ class Profiles extends Controller
         ]);
 
         $user = User::create([
-            'name' => $request->surname .' '. $request->firstname,
+            'name' => $request->surname . ' ' . $request->firstname,
             'email' => $request->email,
             'role' => $request->role,
             'password' => Hash::make('password'),
         ]);
 
-        if($user){
+        if ($user) {
             $staf = Staff::create([
                 'surname' => $request->surname,
                 'firstname' => $request->firstname,
@@ -147,17 +151,27 @@ class Profiles extends Controller
         }
     }
 
-    public function AllStaff(){
+    public function AllStaff()
+    {
         $staffs = Staff::all();
         return response()->json($staffs);
     }
 
-    public function GetStudents($classes){
+    public function GetStudents($classes)
+    {
         $students = Student::with('className', 'section', 'parent')->where('class_name_id', '=', $classes)->get();
         return response()->json($students);
     }
 
-    public function AddParent(Request $request){
+    public function GetStudentById($id)
+    {
+        Log::info($id);
+        $students = Student::where('user_id', '=', $id)->first();
+        return response()->json($students);
+    }
+
+    public function AddParent(Request $request)
+    {
         $request->validate([
             'name' => 'required|string|max:225',
             'email' => 'required|email|unique:users',
@@ -170,7 +184,7 @@ class Profiles extends Controller
             'password' => Hash::make('password'),
         ]);
 
-        if($user){
+        if ($user) {
             $parent = Guardian::create([
                 'name' => $request->name,
                 'role' => 'parent',
@@ -184,12 +198,14 @@ class Profiles extends Controller
         }
     }
 
-    public function AllParent(){
+    public function AllParent()
+    {
         $parent = Guardian::all();
         return response()->json($parent);
     }
 
-    public function AddAdmin(Request $request){
+    public function AddAdmin(Request $request)
+    {
         $request->validate([
             'name' => 'required|string|max:225',
             'email' => 'required|email|unique:users',
@@ -203,7 +219,7 @@ class Profiles extends Controller
             'password' => Hash::make('password'),
         ]);
 
-        if($user){
+        if ($user) {
             $admin = Admin::create([
                 'name' => $request->name,
                 'role' => 'admin',
@@ -216,19 +232,22 @@ class Profiles extends Controller
         }
     }
 
-    public function AllAdmin(){
+    public function AllAdmin()
+    {
         $admin = Admin::all();
         return response()->json($admin);
     }
 
-    public function DeleteParent($id){
+    public function DeleteParent($id)
+    {
         $parent = Guardian::find($id);
         $user = User::find($parent->user_id);
         $delete = $user->delete();
         return response()->json(['message' => 'User Deleted Suessfully!'], 200);
     }
 
-    public function DeleteStaff($id){
+    public function DeleteStaff($id)
+    {
         $staff = Staff::find($id);
         $user = User::find($staff->user_id);
         $delete = $user->delete();
@@ -236,16 +255,18 @@ class Profiles extends Controller
     }
 
 
-    public function DeleteAdmin($id){
-        $admin= Admin::find($id);
+    public function DeleteAdmin($id)
+    {
+        $admin = Admin::find($id);
         $user = User::find($admin->user_id);
         $delete = $user->delete();
         return response()->json(['message' => 'User Deleted Suessfully!'], 200);
     }
 
-    public function UploadStudentPassport(Request $request, $id){
-        $this->validate($request,[
-            'image'=>'required',
+    public function UploadStudentPassport(Request $request, $id)
+    {
+        $this->validate($request, [
+            'image' => 'required',
         ]);
 
         $student = Student::find($id);
