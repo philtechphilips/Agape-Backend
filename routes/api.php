@@ -88,6 +88,9 @@ Route::middleware(['auth:sanctum'])->group(
 
         // Comment
         Route::post('/comment', [Examination::class, 'CreateComment']);
+        Route::get('/get-principals-comments/{session}/{class}/{exam}', [Examination::class, 'FetchPrincipalsCommentToEdit']);
+        Route::get('/get-teachers-comments/{session}/{class}/{exam}', [Examination::class, 'FetchTeachersCommentToEdit']);
+        Route::patch('/teachers-comment', [Examination::class, 'UpdateTeachersComment']);
         // Comment
 
          // Appraisal

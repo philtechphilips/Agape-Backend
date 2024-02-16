@@ -214,6 +214,60 @@ class Examination extends Controller
         return response()->json(['message' => 'Comment Uploaded Successfully!'], 200);
     }
 
+    public function UpdateTeachersComment(Request $request)
+    {
+
+        foreach ($request->selectedData as $result) {
+            $session = Session::where("id", "=", $result['session'])->first();
+            $term = Term::where("id", "=", $session->term)->first();
+
+            $existingRecord = Comment::where([
+                'stuId' => $result['stuId'],
+                'termId' => $session->term,
+                'examId' => $result['exam'],
+                'session' => $result['session'],
+                'comment_type' => $result['comment_type'],
+            ])->first();
+
+            if (!$existingRecord) {
+                return response()->json(['message' => 'Comment not found!'], 400);
+            }
+
+            $existingRecord->update([
+                'stuId' => $result['stuId'],
+                'termId' => $session->term,
+                'examId' => $result['exam'],
+                'session' => $result['session'],
+                'comment_type' => $result['comment_type'],
+                'comment' => $result['comment'],
+            ]);
+        }
+
+        return response()->json(['message' => 'Comment Updated Successfully!'], 200);
+    }
+
+    public function FetchTeachersCommentToEdit($session, $class, $exam)
+    {
+        $teachersComment = Comment::with(['exam', 'session', 'class', 'student', 'term'])
+            ->where('session', $session)
+            ->where('classId', $class)
+            ->where('examId', $exam)
+            ->where('comment_type', "teacher")
+            ->get();
+        return response()->json($teachersComment, 200);
+    }
+
+    public function FetchPrincipalsCommentToEdit($session, $class, $exam)
+    {
+        $teachersComment = Comment::with(['exam', 'session', 'class', 'student', 'term'])
+            ->where('session', $session)
+            ->where('classId', $class)
+            ->where('examId', $exam)
+            ->where('comment_type', "principal")
+            ->get();
+        return response()->json($teachersComment, 200);
+    }
+
     public function CreateAppraisal(Request $request)
     {
         foreach ($request->selectedData as $result) {

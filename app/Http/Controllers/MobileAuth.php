@@ -23,8 +23,9 @@ class MobileAuth extends Controller
         ]);
 
         $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check(strtolower($request->password), strtolower($request->password))) {
+        Log::info($request->password);
+        Log::info($user->password);
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'email' => ['The provided credentials are incorrect.'],
             ], 422);
@@ -52,7 +53,7 @@ class MobileAuth extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make(strtolower($request->password)),
+            'password' => Hash::make($request->password),
         ]);
 
         return ['user' => $user, 'token' => $user->createToken($request->device_name)->plainTextToken];
