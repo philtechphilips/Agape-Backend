@@ -23,8 +23,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth:sanctum'])->group(
-    function ()
-    {
+    function () {
         Route::get('/user', function (Request $request) {
             return $request->user();
         });
@@ -83,11 +82,11 @@ Route::middleware(['auth:sanctum'])->group(
         Route::get('/get-result/{session}/{class}/{exam}/{subject}', [Examination::class, 'FetchResultToEdit']);
         Route::get('/get-result/{session}/{class}/{exam}', [Examination::class, 'FetchResultData']);
         Route::patch('/first-term-result', [Examination::class, 'UpdateFirstTermResult']);
+        Route::get('/fetch-report-card', [Examination::class, 'GetReportCard']);
+        Route::get('/fetch-result/{stuId}', [Examination::class, 'FetchResult']);
         Route::patch('/result/{id}', [Examination::class, 'UpdateResultStatus']);
         Route::patch('/result/{session}/{class}/{exam}', [Examination::class, 'BulkUpdateResultStatus']);
         Route::patch('/release-single-report-card/{id}', [Examination::class, 'ReleaseSingleReportCard']);
-        Route::get('/fetch-report-card', [Examination::class, 'GetReportCard']);
-        Route::get('/fetch-result/{stuId}', [Examination::class, 'FetchResult']);
         // Examination
 
         // Comment
@@ -98,9 +97,9 @@ Route::middleware(['auth:sanctum'])->group(
         Route::patch('/teachers-comment', [Examination::class, 'UpdateTeachersComment']);
         // Comment
 
-         // Appraisal
-         Route::post('/appraisal', [Examination::class, 'CreateAppraisal']);
-         // Appraisal
+        // Appraisal
+        Route::post('/appraisal', [Examination::class, 'CreateAppraisal']);
+        // Appraisal
     }
 );
 
