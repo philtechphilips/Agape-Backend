@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class FirstTermResults extends Model
 {
     use HasFactory;
-    protected $fillable = ['stuId', 'examId', 'section', 'total', 'grade', 'remarks', 'termId', 'term', 'surname', 'firstname', 'subject', 'classId', 'ca', 'exam_mark', 'session'];
+    protected $fillable = ['stuId', 'examId', 'section', 'total', 'grade', 'remarks', 'termId', 'term', 'surname', 'firstname', 'subject', 'classId', 'ca', 'exam_mark', 'session', 'is_result_released'];
 
     public function exam()
     {

@@ -142,6 +142,21 @@ class Examination extends Controller
         return response()->json($result, 200);
     }
 
+    public function ReleaseSingleReportCard(Request $request, $id)
+    {
+        $report_card = FirstTermResults::find($id);
+
+        if (!$report_card) {
+            return response()->json(['message' => 'Report card not found'], 404);
+        }
+
+        $report_card->update([
+            'is_result_released' => $request->is_result_released,
+        ]);
+
+        return response()->json(['message' => 'Report Card Updated Suessfully!'], 200);
+    }
+
     public function UpdateFirstTermResult(Request $request)
     {
         foreach ($request->selectedData as $result) {

@@ -30,6 +30,7 @@ return new class extends Migration
             $table->unsignedBigInteger('termId');
             $table->unsignedInteger('examId');
             $table->unsignedInteger('section');
+            $table->boolean('is_result_released')->default(false);
             $table->timestamps();
             $table->foreign('classId')->references('id')->on('class_names');
             $table->foreign('termId')->references('id')->on('terms');
