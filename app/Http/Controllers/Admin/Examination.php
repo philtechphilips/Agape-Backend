@@ -82,7 +82,7 @@ class Examination extends Controller
                 'classId' => $result['classId'],
             ])->first();
 
-            if(!$existingResultForTerm){
+            if (!$existingResultForTerm) {
                 $term_result = new Result();
                 $term_result->stuId = $result['stuId'];
                 $term_result->termId = $result['term']['id'];
@@ -147,7 +147,8 @@ class Examination extends Controller
         return response()->json($examResults, 200);
     }
 
-    public function FetchResult($stuId){
+    public function FetchResult($stuId)
+    {
         $result = Result::where("stuId", "=", $stuId)->with(["session",  "term", "exam", "students.className", "students.section"])->get();
         return response()->json($result, 200);
     }
@@ -167,6 +168,22 @@ class Examination extends Controller
         $result->update([
             'is_released' => $request->status,
         ]);
+
+        return response()->json(['message' => 'Results Updated Successfully!'], 200);
+    }
+
+
+    public function BulkUpdateResultStatus($session, $class, $exam)
+    {
+
+        $results = Result::where('session', $session)
+            ->where('classId', $class)
+            ->where('examId', $exam)
+            ->get();
+
+        foreach ($results as $result) {
+            $result->update(['is_released' => !$result->is_released]);
+        }
 
         return response()->json(['message' => 'Results Updated Successfully!'], 200);
     }
