@@ -126,6 +126,16 @@ class Examination extends Controller
         return response()->json(['message' => 'Results Uploaded Successfully!'], 200);
     }
 
+    public function FetchResultData($session, $class, $exam)
+    {
+        $examResults = Result::with(['exam', 'session', 'class', 'student', 'term'])
+            ->where('session', $session)
+            ->where('classId', $class)
+            ->where('examId', $exam)
+            ->get();
+        return response()->json($examResults, 200);
+    }
+
     public function FetchResultToEdit($session, $class, $exam, $subject)
     {
         $examResults = FirstTermResults::with(['exam', 'session', 'class', 'student', 'term'])
@@ -140,6 +150,25 @@ class Examination extends Controller
     public function FetchResult($stuId){
         $result = Result::where("stuId", "=", $stuId)->with(["session",  "term", "exam", "students.className", "students.section"])->get();
         return response()->json($result, 200);
+    }
+
+    public function UpdateResultStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required',
+        ]);
+
+        $result = Result::find($id);
+
+        if (!$result) {
+            return response()->json(['message' => 'Result not found'], 404);
+        }
+
+        $result->update([
+            'is_released' => $request->status,
+        ]);
+
+        return response()->json(['message' => 'Results Updated Successfully!'], 200);
     }
 
     public function ReleaseSingleReportCard(Request $request, $id)

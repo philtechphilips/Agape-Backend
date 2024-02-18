@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedInteger('session');
             $table->unsignedBigInteger('termId');
             $table->unsignedInteger('examId');
+            $table->boolean('is_released')->default(false);
             $table->foreign('classId')->references('id')->on('class_names');
             $table->foreign('termId')->references('id')->on('terms');
             $table->foreign('examId')->references('id')->on('exams');

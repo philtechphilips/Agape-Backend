@@ -8,11 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class Result extends Model
 {
     use HasFactory;
-    protected $fillable = ['stuId', 'classId', 'session', 'termId', 'examId'];
+    protected $fillable = ['stuId', 'classId', 'session', 'termId', 'examId', 'is_released'];
 
     public function students()
     {
         return $this->belongsTo(Student::class, 'stuId');
+    }
+
+    public function class()
+    {
+        return $this->belongsTo(ClassName::class, 'classId');
     }
 
     public function session()
@@ -28,5 +33,10 @@ class Result extends Model
     public function exam()
     {
         return $this->belongsTo(Exam::class, 'examId');
+    }
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'stuId');
     }
 }
