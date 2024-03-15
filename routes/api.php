@@ -79,7 +79,9 @@ Route::middleware(['auth:sanctum'])->group(
         // Examination
         Route::get('/exam', [Examination::class, 'GetExam']);
         Route::post('/first-term-exam', [Examination::class, 'FirstTermResult']);
+        Route::post('/second-term-exam', [Examination::class, 'SecondTermResult']);
         Route::get('/get-result/{session}/{class}/{exam}/{subject}', [Examination::class, 'FetchResultToEdit']);
+        Route::get('/get-old-result-for-second-term-report/{class}/{exam}/{subject}', [Examination::class, 'FetchFirstTermResultForSecondReport']);
         Route::get('/get-result/{session}/{class}/{exam}', [Examination::class, 'FetchResultData']);
         Route::patch('/first-term-result', [Examination::class, 'UpdateFirstTermResult']);
         Route::get('/fetch-report-card', [Examination::class, 'GetReportCard']);
