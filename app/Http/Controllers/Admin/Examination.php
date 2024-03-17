@@ -131,7 +131,7 @@ class Examination extends Controller
     public function SecondTermResult(Request $request)
     {
         foreach ($request->selectedData as $result) {
-            $total = $result['caMarks'] + $result['examMarks'] + $result['firstTerm'];
+            $total = $result['caMarks'] + $result['examMarks'];
             $firstTerm = $result['firstTerm'];
             $section = Section::where("id", "=", $result['section'])->first();
             $student_section = $section->section;
@@ -450,13 +450,27 @@ class Examination extends Controller
     public function GetReportCard(Request $request)
     {
         $session = Session::where('id', $request->session)->with("term")->first();
-
-        $result = FirstTermResults::where([
-            ['examId', $request->exam],
-            ['classId', $request->classes],
-            ['stuId', $request->student],
-            ['session', $request->session],
-        ])->get();
+        $find_session = Session::where('id', $request->session)->with("term")->first();
+        if($find_session){
+            if($find_session){
+                if($find_session->term == 1){
+                    $result = FirstTermResults::where([
+                        ['examId', $request->exam],
+                        ['classId', $request->classes],
+                        ['stuId', $request->student],
+                        ['session', $request->session],
+                    ])->get();
+                }else{
+                    $result = SecondTermResult::where([
+                        ['examId', $request->exam],
+                        ['classId', $request->classes],
+                        ['stuId', $request->student],
+                        ['session', $request->session],
+                    ])->get();
+                }
+            }
+        }
+       
 
         $appraisal = Appraisal::where([
             ['examId', $request->exam],

@@ -72,6 +72,7 @@ Route::middleware(['auth:sanctum'])->group(
         Route::get('/term', [Academics::class, 'GetTerm']);
         Route::post('/session', [Academics::class, 'AddSession']);
         Route::get('/session', [Academics::class, 'GetSession']);
+        Route::get('/session/{id}', [Academics::class, 'GetSessionById']);
         Route::delete('/session/{id}', [Academics::class, 'DeleteSession']);
         // Academics
 

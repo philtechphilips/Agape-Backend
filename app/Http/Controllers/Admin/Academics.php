@@ -98,6 +98,11 @@ class Academics extends Controller
         return response()->json($session, 200);
     }
 
+    public function GetSessionById($id){
+        $session = Session::where('id', '=', $id)->with('term')->first();
+        return response()->json($session, 200);
+    }
+
     public function DeleteSession($id){
         $session = Session::find($id);
         $delete = $session->delete();
