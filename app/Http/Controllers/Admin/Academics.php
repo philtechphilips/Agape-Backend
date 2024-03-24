@@ -64,8 +64,13 @@ class Academics extends Controller
     }
 
     public function GetSubject(){
-        $class = Subject::with('sections', 'teachers')->get();
-        return response()->json($class, 200);
+        $subject = Subject::with('sections', 'teachers')->get();
+        return response()->json($subject, 200);
+    }
+
+    public function GetSubjectBySection($section){
+        $subject = Subject::where("section", "=", $section)->with('sections', 'teachers')->get();
+        return response()->json($subject, 200);
     }
 
     public function GetSubjectById($id){

@@ -66,6 +66,7 @@ Route::middleware(['auth:sanctum'])->group(
 
         Route::post('/add-subject', [Academics::class, 'AddSubject']);
         Route::get('/subjects', [Academics::class, 'GetSubject']);
+        // Route::get('/subjects/{section}', [Academics::class, 'GetSubjectBySection']);
         Route::get('/subjects/{id}', [Academics::class, 'GetSubjectById']);
         Route::delete('/subjects/{id}', [Academics::class, 'DeleteSubject']);
 
@@ -79,7 +80,9 @@ Route::middleware(['auth:sanctum'])->group(
 
         // Examination
         Route::get('/exam', [Examination::class, 'GetExam']);
+        Route::get('/exam/{id}', [Examination::class, 'GetExamById']);
         Route::post('/first-term-exam', [Examination::class, 'FirstTermResult']);
+        Route::post('/mock-exam', [Examination::class, 'MockResult']);
         Route::post('/second-term-exam', [Examination::class, 'SecondTermResult']);
         Route::get('/get-result/{session}/{class}/{exam}/{subject}', [Examination::class, 'FetchResultToEdit']);
         Route::get('/get-old-result-for-second-term-report/{class}/{exam}/{subject}', [Examination::class, 'FetchFirstTermResultForSecondReport']);
