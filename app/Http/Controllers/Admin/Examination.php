@@ -333,7 +333,7 @@ class Examination extends Controller
             ->where('term', "1st Term")
             ->where('classId', $class)
             ->where('examId', $exam)
-            ->where('subject', $subject -> subject)
+            ->where('subject', $subject->subject)
             ->get();
         return response()->json($examResults, 200);
     }
@@ -560,56 +560,67 @@ class Examination extends Controller
 
     public function GetReportCard(Request $request)
     {
-        $session = Session::where('id', $request->session)->with("term")->first();
-        $find_session = Session::where('id', $request->session)->with("term")->first();
-        if($find_session){
-            if($find_session){
-                if($find_session->term == 1){
-                    $result = FirstTermResults::where([
-                        ['examId', $request->exam],
-                        ['classId', $request->classes],
-                        ['stuId', $request->student],
-                        ['session', $request->session],
-                    ])->get();
-                }else{
-                    $result = SecondTermResult::where([
-                        ['examId', $request->exam],
-                        ['classId', $request->classes],
-                        ['stuId', $request->student],
-                        ['session', $request->session],
-                    ])->get();
+        if ($request->exam == 2) {
+            $session = Session::where('id', $request->session)->with("term")->first();
+            $result = MockResult::where([
+                ['examId', $request->exam],
+                ['classId', $request->classes],
+                ['stuId', $request->student],
+                ['session', $request->session],
+            ])->get();
+            return response()->json(['result' => $result, 'session' => $session], 200);
+        } else {
+            $session = Session::where('id', $request->session)->with("term")->first();
+            $find_session = Session::where('id', $request->session)->with("term")->first();
+            if ($find_session) {
+                if ($find_session) {
+                    if ($find_session->term == 1) {
+                        $result = FirstTermResults::where([
+                            ['examId', $request->exam],
+                            ['classId', $request->classes],
+                            ['stuId', $request->student],
+                            ['session', $request->session],
+                        ])->get();
+                    } else {
+                        $result = SecondTermResult::where([
+                            ['examId', $request->exam],
+                            ['classId', $request->classes],
+                            ['stuId', $request->student],
+                            ['session', $request->session],
+                        ])->get();
+                    }
                 }
             }
+
+
+            $appraisal = Appraisal::where([
+                ['examId', $request->exam],
+                ['classId', $request->classes],
+                ['stuId', $request->student],
+                ['session', $request->session],
+            ])->first();
+
+            $teachersComment = Comment::where([
+                ['examId', $request->exam],
+                ['classId', $request->classes],
+                ['stuId', $request->student],
+                ['session', $request->session],
+                ['comment_type', "teacher"],
+            ])->first();
+
+            $principalsComment = Comment::where([
+                ['examId', $request->exam],
+                ['classId', $request->classes],
+                ['stuId', $request->student],
+                ['session', $request->session],
+                ['comment_type', "principal"],
+            ])->first();
+
+            $StudentsInClass = Student::where([
+                ['class_name_id', $request->classes]
+            ])->count();
+
+            return response()->json(['session' => $session, 'result' => $result, 'student' => $StudentsInClass, "t_comment" => $teachersComment, "p_comment" => $principalsComment, "appraisal" => $appraisal], 200);
         }
-
-
-        $appraisal = Appraisal::where([
-            ['examId', $request->exam],
-            ['classId', $request->classes],
-            ['stuId', $request->student],
-            ['session', $request->session],
-        ])->first();
-
-        $teachersComment = Comment::where([
-            ['examId', $request->exam],
-            ['classId', $request->classes],
-            ['stuId', $request->student],
-            ['session', $request->session],
-            ['comment_type', "teacher"],
-        ])->first();
-
-        $principalsComment = Comment::where([
-            ['examId', $request->exam],
-            ['classId', $request->classes],
-            ['stuId', $request->student],
-            ['session', $request->session],
-            ['comment_type', "principal"],
-        ])->first();
-
-        $StudentsInClass = Student::where([
-            ['class_name_id', $request->classes]
-        ])->count();
-
-        return response()->json(['session' => $session, 'result' => $result, 'student' => $StudentsInClass, "t_comment" => $teachersComment, "p_comment" => $principalsComment, "appraisal" => $appraisal], 200);
     }
 }
