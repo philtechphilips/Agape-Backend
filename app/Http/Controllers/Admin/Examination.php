@@ -239,6 +239,50 @@ class Examination extends Controller
         return response()->json(['message' => 'Mock Results Uploaded Successfully!'], 200);
     }
 
+    public function UpdateMockResult(Request $request)
+    {
+        Log::info($request);
+        foreach ($request->selectedData as $result) {
+            $total = $result['examMarks'];
+            $section = Section::where("id", "=", $result['section'])->first();
+            $student_section = $section->section;
+            $results = $this->calculateGradeAndRemarksForMock($student_section, $total);
+            $grade = $results['grade'];
+            $remarks = $results['remarks'];
+
+            $existingResultForTerm = Result::where([
+                'stuId' => $result['stuId'],
+                'examId' => $result['exam'],
+                'session' => $result['session'],
+                'classId' => $result['classId'],
+            ])->first();
+
+            if (!$existingResultForTerm) {
+                return response()->json(['message' => 'Record not found!'], 404);
+            }
+
+            $existingRecord = MockResult::where([
+                'stuId' => $result['stuId'],
+                'subject' => $result['subject'],
+                'examId' => $result['exam'],
+                'section' => $result['section'],
+            ])->first();
+
+            if (!$existingRecord) {
+                return response()->json(['message' => 'Record not found!'], 404);
+            }
+
+            $existingRecord->update([
+                'exam_mark' => $result['examMarks'],
+                'grade' => $grade,
+                'remarks' => $remarks,
+                'total' => $total,
+            ]);
+        }
+
+        return response()->json(['message' => 'Mock Results Updated Successfully!'], 200);
+    }
+
     public function SecondTermResult(Request $request)
     {
         foreach ($request->selectedData as $result) {
@@ -319,15 +363,22 @@ class Examination extends Controller
 
         $session_data = Session::where("id", "=", $session)->first();
 
-        if($session_data->term == "1"){
+        if($exam == "1" && $session_data->term == "1"){
             $examResults = FirstTermResults::with(['exam', 'session', 'class', 'student', 'term'])
             ->where('session', $session)
             ->where('classId', $class)
             ->where('examId', $exam)
             ->where('subject', $subject)
             ->get();
-        }else{
+        }else if($exam == "1" && $session_data->term == "2"){
             $examResults = SecondTermResult::with(['exam', 'session', 'class', 'student', 'term'])
+            ->where('session', $session)
+            ->where('classId', $class)
+            ->where('examId', $exam)
+            ->where('subject', $subject)
+            ->get();
+        }else if($exam == "2"){
+            $examResults = MockResult::with(['exam', 'session', 'class', 'student', 'term'])
             ->where('session', $session)
             ->where('classId', $class)
             ->where('examId', $exam)
