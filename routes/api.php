@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\Profiles;
 use App\Http\Controllers\Admin\Schedule;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Main\MainFunctions;
+use App\Http\Controllers\Main\StudentApplication;
 use App\Http\Controllers\MobileAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -111,9 +112,15 @@ Route::middleware(['auth:sanctum'])->group(
     }
 );
 
+// Auth
 Route::post('/auth/token', [MobileAuth::class, 'store']);
 Route::post('/register', [MobileAuth::class, 'register']);
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store']);
 Route::get('/sanctum/csrf-cookie', function (Request $request) {
     return response()->json(['csrf_token' => csrf_token()]);
 });
+
+
+// Student Application
+Route::post('/submit-application', [StudentApplication::class, 'SubmitApplication']);
+// --path=database/migrations/2024_02_16_192835_create_appliactions_table.php
