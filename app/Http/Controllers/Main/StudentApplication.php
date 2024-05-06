@@ -20,7 +20,7 @@ class StudentApplication extends Controller
         $randomNumber = rand(10000, 99999);
 
 
-        $app_num = "ABC" . Date('y') . $randomNumber;
+        $app_num = "ABC" . '-' . Date('y') . '-' . $randomNumber;
 
         $application = new Application();
         $application->name = $request->name;
@@ -29,7 +29,7 @@ class StudentApplication extends Controller
         $application->height = $request->height;
         $application->weight = $request->weight;
         $application->other_school = $request->otherSchool;
-        $application->school_attended= $request->schoolAttended;
+        $application->school_attended = $request->schoolAttended;
         $application->last_class = $request->lastClass;
         $application->highest_class_before_leaving = $request->highestClassBeforeLeaving;
         $application->reason_for_leaving = $request->reasonForLeaving;
@@ -53,5 +53,60 @@ class StudentApplication extends Controller
         $application->save();
 
         return response()->json(['message' => 'Application Submitted Sucessfully!', 'appNum' => $app_num], 200);
+    }
+
+
+    public function FetchApplication($app_num, Request $request)
+    {
+        $application = Application::where('app_num', '=', $app_num)->first();
+
+        if (!$application) {
+            return response()->json(['message' => 'Application not found!'], 400);
+        }
+
+        return response()->json(['message' => 'Application Fetched Sucessfully!', 'application' => $application], 200);
+    }
+
+
+    public function FetchAllApplications(Request $request)
+    {
+        $application = Application::all();
+
+        return response()->json(['message' => 'Application Fetched Sucessfully!', 'application' => $application], 200);
+    }
+
+    public function DeleteApplication($app_num, Request $request)
+    {
+        $application = Application::where('id', '=', $app_num);
+
+        if (!$application) {
+            return response()->json(['message' => 'Application Deleted Sucessfully!'], 400);
+        }
+
+        $application->delete();
+
+        return response()->json(['message' => 'Application Deleted Sucessfully!'], 200);
+    }
+
+
+    public function UploadStudentPassport(Request $request, $id)
+    {
+        $this->validate($request, [
+            'image' => 'required',
+        ]);
+
+        $student = Application::find($id);
+
+        Log::info($request->image);
+
+        if (!$student) {
+            return response()->json(['message' => 'Application not found'], 404);
+        }
+
+        $student->update([
+            'imageUrl' => $request->image,
+        ]);
+
+        return response()->json(['message' => 'Passport uploaded Suessfully!'], 200);
     }
 }
