@@ -368,7 +368,7 @@ class Examination extends Controller
 
             $section = Section::where("id", "=", $result['section'])->first();
             $student_section = $section->section;
-            $results = $this->calculateGradeAndRemarks($student_section, $total);
+            $results = $this->calculateGradeAndRemarks($student_section, $percentage);
             $grade = $results['grade'];
             $remarks = $results['remarks'];
 
@@ -452,6 +452,13 @@ class Examination extends Controller
                 ->get();
         } else if ($exam == "1" && $session_data->term == "2") {
             $examResults = SecondTermResult::with(['exam', 'session', 'class', 'student', 'term'])
+                ->where('session', $session)
+                ->where('classId', $class)
+                ->where('examId', $exam)
+                ->where('subject', $subject)
+                ->get();
+        }else if ($exam == "1" && $session_data->term == "3") {
+            $examResults = ThirdTermResult::with(['exam', 'session', 'class', 'student', 'term'])
                 ->where('session', $session)
                 ->where('classId', $class)
                 ->where('examId', $exam)
@@ -587,12 +594,10 @@ class Examination extends Controller
         return response()->json(['message' => 'Results Updated Successfully!'], 200);
     }
 
-
     public function UpdateSecondTermResult(Request $request)
     {
         foreach ($request->selectedData as $result) {
             $total = $result['caMarks'] + $result['examMarks'];
-
 
             $section = Section::find($result['section']);
             $student_section = $section->section;
@@ -619,6 +624,58 @@ class Examination extends Controller
                 'grade' => $grade,
                 'remarks' => $remarks,
                 'total' => $total,
+            ]);
+        }
+
+        return response()->json(['message' => 'Results Updated Successfully!'], 200);
+    }
+
+    public function UpdateThirdTermResult(Request $request)
+    {
+        foreach ($request->selectedData as $result) {
+            $firstTerm = $result['firstTerm'];
+            $secondTerm = $result['secondTerm'];
+            $total = $result['caMarks'] + $result['examMarks'];
+
+            if ($firstTerm && $secondTerm) {
+                $percentage = ($result['caMarks'] + $result['examMarks'] + $firstTerm + $secondTerm) / 3;
+            } else if (!$firstTerm && $secondTerm) {
+                $percentage = ($result['caMarks'] + $result['examMarks'] + $secondTerm) / 2;
+            } else if (!$secondTerm && $firstTerm) {
+                $percentage = ($result['caMarks'] + $result['examMarks'] + $firstTerm) / 2;
+            } else {
+                $percentage = $result['caMarks'] + $result['examMarks'];
+            }
+
+
+            $section = Section::find($result['section']);
+            $student_section = $section->section;
+
+            $results = $this->calculateGradeAndRemarks($student_section, $percentage);
+            $grade = $results['grade'];
+            $remarks = $results['remarks'];
+
+            Log::info($results);
+
+            $existingRecord = ThirdTermResult::where([
+                'stuId' => $result['stuId'],
+                'subject' => $result['subject'],
+                'termId' => $result['term'],
+                'examId' => $result['exam'],
+                'section' => $result['section'],
+            ])->first();
+
+            if (!$existingRecord) {
+                return response()->json(['message' => 'Record not found!'], 404);
+            }
+
+            $existingRecord->update([
+                'ca' => $result['caMarks'],
+                'exam_mark' => $result['examMarks'],
+                'grade' => $results['grade'],
+                'remarks' => $results['remarks'],
+                'total' => $total,
+                'percentage' => $percentage,
             ]);
         }
 

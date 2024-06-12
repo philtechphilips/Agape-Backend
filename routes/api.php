@@ -93,6 +93,7 @@ Route::middleware(['auth:sanctum'])->group(
         Route::patch('/first-term-result', [Examination::class, 'UpdateFirstTermResult']);
         Route::patch('/mock-result', [Examination::class, 'UpdateMockResult']);
         Route::patch('/second-term-result', [Examination::class, 'UpdateSecondTermResult']);
+        Route::patch('/third-term-result', [Examination::class, 'UpdateThirdTermResult']);
         Route::get('/fetch-report-card', [Examination::class, 'GetReportCard']);
         Route::get('/fetch-result/{stuId}', [Examination::class, 'FetchResult']);
         Route::patch('/result/{id}', [Examination::class, 'UpdateResultStatus']);
