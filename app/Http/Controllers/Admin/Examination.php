@@ -15,6 +15,7 @@ use App\Models\Admin\Session;
 use App\Models\Admin\Student;
 use App\Models\Admin\Subject;
 use App\Models\Admin\Term;
+use App\Models\Admin\ThirdTermResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -347,6 +348,85 @@ class Examination extends Controller
         return response()->json(['message' => 'Results Uploaded Successfully!'], 200);
     }
 
+    public function ThirdTermResult(Request $request)
+    {
+        foreach ($request->selectedData as $result) {
+            $firstTerm = $result['firstTerm'];
+            $secondTerm = $result['secondTerm'];
+            $total = $result['caMarks'] + $result['examMarks'];
+
+
+            if ($firstTerm && $secondTerm) {
+                $percentage = ($result['caMarks'] + $result['examMarks'] + $firstTerm + $secondTerm) / 3;
+            } else if (!$firstTerm) {
+                $percentage = ($result['caMarks'] + $result['examMarks'] + $secondTerm) / 2;
+            } else if (!$secondTerm) {
+                $percentage = ($result['caMarks'] + $result['examMarks'] + $firstTerm) / 2;
+            } else {
+                $percentage = $result['caMarks'] + $result['examMarks'];
+            }
+
+            $section = Section::where("id", "=", $result['section'])->first();
+            $student_section = $section->section;
+            $results = $this->calculateGradeAndRemarks($student_section, $total);
+            $grade = $results['grade'];
+            $remarks = $results['remarks'];
+
+            $existingResultForTerm = Result::where([
+                'stuId' => $result['stuId'],
+                'termId' => $result['term']['id'],
+                'examId' => $result['exam'],
+                'session' => $result['session'],
+                'classId' => $result['classId'],
+            ])->first();
+
+            if (!$existingResultForTerm) {
+                $term_result = new Result();
+                $term_result->stuId = $result['stuId'];
+                $term_result->termId = $result['term']['id'];
+                $term_result->examId = $result['exam'];
+                $term_result->session = $result['session'];
+                $term_result->classId = $result['classId'];
+                $term_result->save();
+            }
+
+            $existingRecord = ThirdTermResult::where([
+                'stuId' => $result['stuId'],
+                'subject' => $result['subject'],
+                'termId' => $result['term']['id'],
+                'examId' => $result['exam'],
+                'section' => $result['section'],
+            ])->first();
+
+            if ($existingRecord) {
+                return response()->json(['message' => 'Result Exist!'], 400);
+            }
+
+            $first_term_result = new ThirdTermResult();
+            $first_term_result->stuId = $result['stuId'];
+            $first_term_result->surname = $result['surname'];
+            $first_term_result->firstname = $result['firstname'];
+            $first_term_result->subject = $result['subject'];
+            $first_term_result->classId = $result['classId'];
+            $first_term_result->ca = $result['caMarks'];
+            $first_term_result->exam_mark = $result['examMarks'];
+            $first_term_result->session = $result['session'];
+            $first_term_result->termId = $result['term']['id'];
+            $first_term_result->term = $result['term']['term'];
+            $first_term_result->examId = $result['exam'];
+            $first_term_result->section = $result['section'];
+            $first_term_result->grade = $grade;
+            $first_term_result->remarks = $remarks;
+            $first_term_result->firstTerm = $result['firstTerm'];
+            $first_term_result->secondTerm = $result['secondTerm'];
+            $first_term_result->total = $total;
+            $first_term_result->percentage = $percentage;
+            $first_term_result->save();
+        }
+
+        return response()->json(['message' => 'Results Uploaded Successfully!'], 200);
+    }
+
 
     public function FetchResultData($session, $class, $exam)
     {
@@ -363,27 +443,27 @@ class Examination extends Controller
 
         $session_data = Session::where("id", "=", $session)->first();
 
-        if($exam == "1" && $session_data->term == "1"){
+        if ($exam == "1" && $session_data->term == "1") {
             $examResults = FirstTermResults::with(['exam', 'session', 'class', 'student', 'term'])
-            ->where('session', $session)
-            ->where('classId', $class)
-            ->where('examId', $exam)
-            ->where('subject', $subject)
-            ->get();
-        }else if($exam == "1" && $session_data->term == "2"){
+                ->where('session', $session)
+                ->where('classId', $class)
+                ->where('examId', $exam)
+                ->where('subject', $subject)
+                ->get();
+        } else if ($exam == "1" && $session_data->term == "2") {
             $examResults = SecondTermResult::with(['exam', 'session', 'class', 'student', 'term'])
-            ->where('session', $session)
-            ->where('classId', $class)
-            ->where('examId', $exam)
-            ->where('subject', $subject)
-            ->get();
-        }else if($exam == "2"){
+                ->where('session', $session)
+                ->where('classId', $class)
+                ->where('examId', $exam)
+                ->where('subject', $subject)
+                ->get();
+        } else if ($exam == "2") {
             $examResults = MockResult::with(['exam', 'session', 'class', 'student', 'term'])
-            ->where('session', $session)
-            ->where('classId', $class)
-            ->where('examId', $exam)
-            ->where('subject', $subject)
-            ->get();
+                ->where('session', $session)
+                ->where('classId', $class)
+                ->where('examId', $exam)
+                ->where('subject', $subject)
+                ->get();
         }
         return response()->json($examResults, 200);
     }
@@ -400,6 +480,19 @@ class Examination extends Controller
             ->get();
         return response()->json($examResults, 200);
     }
+
+    public function FetchSecondTermResultForThirdReport($class, $exam, $subject)
+    {
+        $subject = Subject::find($subject);
+        $examResults = SecondTermResult::with(['exam', 'class', 'student', 'term'])
+            ->where('term', "2nd Term")
+            ->where('classId', $class)
+            ->where('examId', $exam)
+            ->where('subject', $subject->subject)
+            ->get();
+        return response()->json($examResults, 200);
+    }
+
 
     public function FetchResult($stuId)
     {

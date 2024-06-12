@@ -44,6 +44,7 @@ return new class extends Migration
             $table->string("mothers_phone")->nullable();
             $table->string("fathers_phone")->nullable();
             $table->string("name_of_financer")->nullable();
+            $table->string("imageUrl")->nullable();
             $table->timestamps();
         });
     }
