@@ -30,8 +30,8 @@ return new class extends Migration
             $table->unsignedInteger('session');
             $table->unsignedBigInteger('termId');
             $table->unsignedInteger('examId');
-            $table->unsignedInteger('firstTerm');
-            $table->unsignedInteger('secondTerm');
+            $table->unsignedInteger('firstTerm')->nullable();
+            $table->unsignedInteger('secondTerm')->nullable();
             $table->unsignedInteger('section');
             $table->boolean('is_result_released')->default(false);
             $table->timestamps();

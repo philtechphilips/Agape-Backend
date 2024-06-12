@@ -358,9 +358,9 @@ class Examination extends Controller
 
             if ($firstTerm && $secondTerm) {
                 $percentage = ($result['caMarks'] + $result['examMarks'] + $firstTerm + $secondTerm) / 3;
-            } else if (!$firstTerm) {
+            } else if (!$firstTerm && $secondTerm) {
                 $percentage = ($result['caMarks'] + $result['examMarks'] + $secondTerm) / 2;
-            } else if (!$secondTerm) {
+            } else if (!$secondTerm && $firstTerm) {
                 $percentage = ($result['caMarks'] + $result['examMarks'] + $firstTerm) / 2;
             } else {
                 $percentage = $result['caMarks'] + $result['examMarks'];
@@ -775,8 +775,15 @@ class Examination extends Controller
                             ['stuId', $request->student],
                             ['session', $request->session],
                         ])->get();
-                    } else {
+                    } else if ($find_session->term == 2) {
                         $result = SecondTermResult::where([
+                            ['examId', $request->exam],
+                            ['classId', $request->classes],
+                            ['stuId', $request->student],
+                            ['session', $request->session],
+                        ])->get();
+                    }  else {
+                        $result = ThirdTermResult::where([
                             ['examId', $request->exam],
                             ['classId', $request->classes],
                             ['stuId', $request->student],
