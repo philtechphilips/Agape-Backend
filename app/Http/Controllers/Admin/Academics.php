@@ -6,13 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin\ClassName;
 use App\Models\Admin\Section;
 use App\Models\Admin\Session;
+use App\Models\Admin\Student;
 use App\Models\Admin\Subject;
 use App\Models\Admin\Term;
 use Illuminate\Http\Request;
 
 class Academics extends Controller
 {
-    public function AddSection(Request $request){
+    public function AddSection(Request $request)
+    {
         $request->validate([
             'section' => 'required|string|max:225',
         ]);
@@ -23,13 +25,15 @@ class Academics extends Controller
         return response()->json(['message' => 'Section Created Sucessfully!'], 200);
     }
 
-    public function GetSection(){
+    public function GetSection()
+    {
         $section = Section::all();
         return response()->json($section, 200);
     }
 
 
-    public function AddClass(Request $request){
+    public function AddClass(Request $request)
+    {
         $request->validate([
             'section' => 'required',
             'className' => 'required',
@@ -44,12 +48,20 @@ class Academics extends Controller
         return response()->json(['message' => 'Subject Created Sucessfully!'], 200);
     }
 
-    public function GetClass(){
+    public function GetClass()
+    {
         $class = ClassName::with('sections', 'teachers')->get();
         return response()->json($class, 200);
     }
 
-    public function AddSubject(Request $request){
+    public function GetClassById($id)
+    {
+        $class = ClassName::where("id", "=", $id)->with('sections', 'teachers')->get();
+        return response()->json($class, 200);
+    }
+
+    public function AddSubject(Request $request)
+    {
         $request->validate([
             'subject' => 'required',
             'section' => 'required',
@@ -63,29 +75,34 @@ class Academics extends Controller
         return response()->json(['message' => 'Subject Created Sucessfully!'], 200);
     }
 
-    public function GetSubject(){
+    public function GetSubject()
+    {
         $subject = Subject::with('sections', 'teachers')->get();
         return response()->json($subject, 200);
     }
 
-    public function GetSubjectBySection($section){
+    public function GetSubjectBySection($section)
+    {
         $subject = Subject::where("section", "=", $section)->with('sections', 'teachers')->get();
         return response()->json($subject, 200);
     }
 
-    public function GetSubjectById($id){
+    public function GetSubjectById($id)
+    {
         $subject = Subject::with('sections', 'teachers')->where("id", "=", $id)->get();
         return response()->json($subject, 200);
     }
 
-    public function DeleteSubject($id){
+    public function DeleteSubject($id)
+    {
         $subject = Subject::find($id);
         $delete = $subject->delete();
         return response()->json(['message' => 'Subject Deleted Suessfully!'], 200);
     }
 
 
-    public function AddSession(Request $request){
+    public function AddSession(Request $request)
+    {
         $request->validate([
             'session' => 'required',
             'term' => 'required',
@@ -98,24 +115,45 @@ class Academics extends Controller
         return response()->json(['message' => 'Session Created Sucessfully!'], 200);
     }
 
-    public function GetSession(){
+    public function GetSession()
+    {
         $session = Session::with('term')->get();
         return response()->json($session, 200);
     }
 
-    public function GetSessionById($id){
+    public function GetSessionById($id)
+    {
         $session = Session::where('id', '=', $id)->with('term')->first();
         return response()->json($session, 200);
     }
 
-    public function DeleteSession($id){
+    public function DeleteSession($id)
+    {
         $session = Session::find($id);
         $delete = $session->delete();
         return response()->json(['message' => 'Session Deleted Suessfully!'], 200);
     }
 
-    public function GetTerm(){
+    public function GetTerm()
+    {
         $term = Term::all();
         return response()->json($term, 200);
+    }
+
+    public function PromoteStudent(Request $request)
+    {
+        foreach ($request->selectedData as $studentDetails) {
+            $stuId = $studentDetails['stuId'];
+            $student = Student::where("id", "=", $stuId)->first();
+
+            if (!$student) {
+                return response()->json(['message' => 'Student not found!'], 400);
+            }
+
+            $student->update([
+                'class_name_id' => $studentDetails['new_class'],
+            ]);
+        }
+        return response()->json(['message' => 'Student(s) promoted!'], 200);
     }
 }

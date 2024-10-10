@@ -64,6 +64,7 @@ Route::middleware(['auth:sanctum'])->group(
         Route::get('/sections', [Academics::class, 'GetSection']);
         Route::post('/add-class', [Academics::class, 'AddClass']);
         Route::get('/classes', [Academics::class, 'GetClass']);
+        Route::get('/classes/{id}', [Academics::class, 'GetClassById']);
 
         Route::post('/add-subject', [Academics::class, 'AddSubject']);
         Route::get('/subjects', [Academics::class, 'GetSubject']);
@@ -76,6 +77,8 @@ Route::middleware(['auth:sanctum'])->group(
         Route::get('/session', [Academics::class, 'GetSession']);
         Route::get('/session/{id}', [Academics::class, 'GetSessionById']);
         Route::delete('/session/{id}', [Academics::class, 'DeleteSession']);
+
+        Route::post('/promote-student', [Academics::class, 'PromoteStudent']);
         // Academics
 
 
