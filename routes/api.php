@@ -136,4 +136,3 @@ Route::get('/sanctum/csrf-cookie', function (Request $request) {
 Route::post('/submit-application', [StudentApplication::class, 'SubmitApplication']);
 Route::get('/application/{app_num}', [StudentApplication::class, 'FetchApplication']);
 Route::patch('/app-student-passport/{id}', [StudentApplication::class, 'UploadStudentPassport']);
-// --path=database/migrations/2024_02_16_192835_create_appliactions_table.php
