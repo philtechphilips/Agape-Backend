@@ -131,7 +131,6 @@ Route::get('/sanctum/csrf-cookie', function (Request $request) {
     return response()->json(['csrf_token' => csrf_token()]);
 });
 
-
 // Student Application
 Route::post('/submit-application', [StudentApplication::class, 'SubmitApplication']);
 Route::get('/application/{app_num}', [StudentApplication::class, 'FetchApplication']);
