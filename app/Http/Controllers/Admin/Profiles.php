@@ -9,6 +9,7 @@ use App\Models\Admin\Staff;
 use App\Models\Admin\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use JD\Cloudder\Facades\Cloudder;
@@ -159,8 +160,30 @@ class Profiles extends Controller
 
     public function GetStudents($classes)
     {
-        $students = Student::with('className', 'section', 'parent')->where('class_name_id', '=', $classes)->get();
+        $students = Student::with('className', 'section', 'parent')
+        ->where('class_name_id', '=', $classes)
+        ->where('status', '=', "active")
+        ->get();
         return response()->json($students);
+    }
+
+    public function UpdateAllStudentStatus($classes, Request $request)
+    {
+        $students = Student::with('className', 'section', 'parent')
+        ->where('class_name_id', '=', $classes)
+        ->where('status', '=', "active")
+        ->get();
+
+        foreach($students as $stud){
+            $stud->update([
+                'status' => $request->newStatus,
+                'status_year' => date("Y")
+            ]);
+        }
+        return response()->json([
+            'message' => 'Student(s) status updated successfully',
+            'students' => $students
+        ]);
     }
 
     public function GetStudentById($id)
