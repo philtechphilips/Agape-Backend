@@ -87,6 +87,9 @@ Route::middleware(['auth:sanctum'])->group(
         Route::get('/exam/{id}', [Examination::class, 'GetExamById']);
         Route::post('/first-term-exam', [Examination::class, 'FirstTermResult']);
         Route::post('/mock-exam', [Examination::class, 'MockResult']);
+
+        Route::post('/midterm-result', [Examination::class, 'MidTermResult']);
+
         Route::post('/junior-mock-exam', [Examination::class, 'JuniorMockResult']);
         Route::post('/second-term-exam', [Examination::class, 'SecondTermResult']);
         Route::post('/third-term-exam', [Examination::class, 'ThirdTermResult']);

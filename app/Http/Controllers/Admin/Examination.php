@@ -7,6 +7,7 @@ use App\Models\Admin\Appraisal;
 use App\Models\Admin\Comment;
 use App\Models\Admin\Exam;
 use App\Models\Admin\FirstTermResults;
+use App\Models\Admin\MidtermResult;
 use App\Models\Admin\MockResult;
 use App\Models\Admin\Result;
 use App\Models\Admin\SecondTermResult;
@@ -238,6 +239,60 @@ class Examination extends Controller
         }
 
         return response()->json(['message' => 'Mock Results Uploaded Successfully!'], 200);
+    }
+
+    public function MidTermResult(Request $request)
+    {
+        foreach ($request->selectedData as $result) {
+            $total = $result['examMarks'];
+
+            $existingResultForTerm = Result::where([
+                'stuId' => $result['stuId'],
+                'termId' => $result['term']['id'],
+                'examId' => $result['exam'],
+                'session' => $result['session'],
+                'classId' => $result['classId'],
+            ])->first();
+
+            if (!$existingResultForTerm) {
+                $term_result = new Result();
+                $term_result->stuId = $result['stuId'];
+                $term_result->termId = $result['term']['id'];
+                $term_result->examId = $result['exam'];
+                $term_result->session = $result['session'];
+                $term_result->classId = $result['classId'];
+                $term_result->save();
+            }
+
+            $existingRecord = MidtermResult::where([
+                'stuId' => $result['stuId'],
+                'subject' => $result['subject'],
+                'termId' => $result['term']['id'],
+                'examId' => $result['exam'],
+                'section' => $result['section'],
+            ])->first();
+
+            if ($existingRecord) {
+                return response()->json(['message' => 'Result Exist!'], 400);
+            }
+
+            $first_term_result = new MidtermResult();
+            $first_term_result->stuId = $result['stuId'];
+            $first_term_result->surname = $result['surname'];
+            $first_term_result->firstname = $result['firstname'];
+            $first_term_result->subject = $result['subject'];
+            $first_term_result->classId = $result['classId'];
+            $first_term_result->exam_mark = $result['examMarks'];
+            $first_term_result->session = $result['session'];
+            $first_term_result->termId = $result['term']['id'];
+            $first_term_result->term = $result['term']['term'];
+            $first_term_result->examId = $result['exam'];
+            $first_term_result->section = $result['section'];
+            $first_term_result->total = $total;
+            $first_term_result->save();
+        }
+
+        return response()->json(['message' => 'Midterm Results Uploaded Successfully!'], 200);
     }
 
     public function JuniorMockResult(Request $request)
@@ -518,7 +573,7 @@ class Examination extends Controller
                 ->where('examId', $exam)
                 ->where('subject', $subject)
                 ->get();
-        }else if ($exam == "1" && $session_data->term == "3") {
+        } else if ($exam == "1" && $session_data->term == "3") {
             $examResults = ThirdTermResult::with(['exam', 'session', 'class', 'student', 'term'])
                 ->where('session', $session)
                 ->where('classId', $class)
@@ -881,6 +936,15 @@ class Examination extends Controller
                 ['session', $request->session],
             ])->get();
             return response()->json(['result' => $result, 'session' => $session], 200);
+        } else if ($request->exam == 3) {
+            $session = Session::where('id', $request->session)->with("term")->first();
+            $result = MidtermResult::where([
+                ['examId', $request->exam],
+                ['classId', $request->classes],
+                ['stuId', $request->student],
+                ['session', $request->session],
+            ])->get();
+            return response()->json(['result' => $result, 'session' => $session], 200);
         } else {
             $session = Session::where('id', $request->session)->with("term")->first();
             $find_session = Session::where('id', $request->session)->with("term")->first();
@@ -900,7 +964,7 @@ class Examination extends Controller
                             ['stuId', $request->student],
                             ['session', $request->session],
                         ])->get();
-                    }  else {
+                    } else {
                         $result = ThirdTermResult::where([
                             ['examId', $request->exam],
                             ['classId', $request->classes],
