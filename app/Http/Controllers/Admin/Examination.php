@@ -17,6 +17,7 @@ use App\Models\Admin\Student;
 use App\Models\Admin\Subject;
 use App\Models\Admin\Term;
 use App\Models\Admin\ThirdTermResult;
+use App\Models\ContinuousAssessment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -294,6 +295,70 @@ class Examination extends Controller
 
         return response()->json(['message' => 'Midterm Results Uploaded Successfully!'], 200);
     }
+
+    public function ContinousAssessment(Request $request)
+    {
+        foreach ($request->selectedData as $result) {
+            $total = $result['examMarks'];
+
+            // Check if record exists
+            $existingRecord = ContinuousAssessment::where([
+                'stuId' => $result['stuId'],
+                'subject' => $result['subject'],
+                'termId' => $result['term']['id'],
+                'section' => $result['section'],
+            ])->first();
+
+            // If the record exists, update it
+            if ($existingRecord) {
+                $existingRecord->assignment_one = $result['assignment_one'];
+                $existingRecord->assignment_tow = $result['assignment_tow'];
+                $existingRecord->assignment_three = $result['assignment_three'];
+                $existingRecord->assignment_four = $result['assignment_four'];
+                $existingRecord->assignment_five = $result['assignment_five'];
+                $existingRecord->classwork_one = $result['classwork_one'];
+                $existingRecord->classwork_two = $result['classwork_two'];
+                $existingRecord->classwork_three = $result['classwork_three'];
+                $existingRecord->classwork_four = $result['classwork_four'];
+                $existingRecord->classwork_five = $result['classwork_five'];
+                $existingRecord->score = $result['score'];
+                $existingRecord->total = $total;
+                $existingRecord->session = $result['session'];
+                $existingRecord->examId = $result['exam'];
+                $existingRecord->save();
+                return response()->json(['message' => 'Midterm Results Updated Successfully!'], 200);
+            } else {
+                // Create a new record if it doesn't exist
+                $ca = new ContinuousAssessment();
+                $ca->stuId = $result['stuId'];
+                $ca->surname = $result['surname'];
+                $ca->firstname = $result['firstname'];
+                $ca->subject = $result['subject'];
+                $ca->classId = $result['classId'];
+                $ca->assignment_one = $result['assignment_one'];
+                $ca->assignment_tow = $result['assignment_tow'];
+                $ca->assignment_three = $result['assignment_three'];
+                $ca->assignment_four = $result['assignment_four'];
+                $ca->assignment_five = $result['assignment_five'];
+                $ca->classwork_one = $result['classwork_one'];
+                $ca->classwork_two = $result['classwork_two'];
+                $ca->classwork_three = $result['classwork_three'];
+                $ca->classwork_four = $result['classwork_four'];
+                $ca->classwork_five = $result['classwork_five'];
+                $ca->score = $result['score'];
+                $ca->session = $result['session'];
+                $ca->termId = $result['term']['id'];
+                $ca->term = $result['term']['term'];
+                $ca->examId = $result['exam'];
+                $ca->section = $result['section'];
+                $ca->total = $total;
+                $ca->save();
+            }
+        }
+
+        return response()->json(['message' => 'Midterm Results Uploaded Successfully!'], 201);
+    }
+
 
     public function JuniorMockResult(Request $request)
     {

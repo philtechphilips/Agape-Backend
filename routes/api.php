@@ -81,6 +81,8 @@ Route::middleware(['auth:sanctum', 'role:admin,teacher'])->group(function () {
 
     Route::post('/midterm-result', [Examination::class, 'MidTermResult']);
 
+    Route::post('/continuous-assessment', [Examination::class, 'ContinousAssessment']);
+
     Route::post('/junior-mock-exam', [Examination::class, 'JuniorMockResult']);
     Route::post('/second-term-exam', [Examination::class, 'SecondTermResult']);
     Route::post('/third-term-exam', [Examination::class, 'ThirdTermResult']);
@@ -129,7 +131,7 @@ Route::middleware(['auth:sanctum'])->group(
 
 
         Route::get('/subjects', [Academics::class, 'GetSubject']);
-        Route::get('/section-subjects/{section}', [Academics::class, 'GetSubjectBySection']);
+        // Route::get('/section-subjects/{section}', [Academics::class, 'GetSubjectBySection']);
         Route::get('/subjects/{id}', [Academics::class, 'GetSubjectById']);
 
 
