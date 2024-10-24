@@ -30,15 +30,14 @@ return new class extends Migration
             $table->string('classwork_three')->nullable();
             $table->string('classwork_four')->nullable();
             $table->string('classwork_five')->nullable();
-            $table->string('text_one')->nullable();
-            $table->string('text_two')->nullable();
-            $table->string('text_three')->nullable();
+            $table->string('test_one')->nullable();
+            $table->string('test_two')->nullable();
+            $table->string('test_three')->nullable();
             $table->unsignedBigInteger('classId');
             $table->unsignedInteger('score');
             $table->unsignedInteger('session');
             $table->unsignedBigInteger('termId');
             $table->unsignedInteger('examId');
-            $table->unsignedInteger('section');
             $table->boolean('is_released')->default(false);
             $table->timestamps();
             $table->foreign('classId')->references('id')->on('class_names');

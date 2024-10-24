@@ -13,7 +13,7 @@ class Session extends Model
 
     public function term()
     {
-        return $this->belongsTo(Term::class, 'term');
+        return $this->belongsTo(Term::class);
     }
 
 }

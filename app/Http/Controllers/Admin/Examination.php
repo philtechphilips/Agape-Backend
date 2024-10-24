@@ -299,20 +299,48 @@ class Examination extends Controller
     public function ContinousAssessment(Request $request)
     {
         foreach ($request->selectedData as $result) {
-            $total = $result['examMarks'];
+            // $fetchTerm = Session::where('id', "=", $result['session'])
+            //     ->with('term')
+            //     ->first();
+
+            //     if (is_object($fetchTerm->term)) {
+            //         $termId = (string) $fetchTerm->term->id;
+            //     } else {
+            //         // Handle cases where 'term' is not an object (e.g., null or an integer)
+            //         Log::error('Invalid term relationship', ['fetchTerm' => $fetchTerm]);
+            //         $termId = null;  // You can set this to a default or handle it as needed
+            //     }
+
+            $total =
+                $result['assignment_one'] +
+                $result['assignment_two'] +
+                $result['assignment_three'] +
+                $result['assignment_four'] +
+                $result['assignment_five'] +
+                $result['classwork_one'] +
+                $result['classwork_two'] +
+                $result['classwork_three'] +
+                $result['classwork_four'] +
+                $result['classwork_five'] +
+                $result['test_one'] +
+                $result['test_two'] +
+                $result['test_three'];
+
+            // Calculate score as (total / 100) * 0.4
+            $score = ($total / 100) * 0.4;
 
             // Check if record exists
             $existingRecord = ContinuousAssessment::where([
                 'stuId' => $result['stuId'],
                 'subject' => $result['subject'],
-                'termId' => $result['term']['id'],
-                'section' => $result['section'],
+                // 'termId' => $termId,
+                'session' => $result['session'],
             ])->first();
 
             // If the record exists, update it
             if ($existingRecord) {
                 $existingRecord->assignment_one = $result['assignment_one'];
-                $existingRecord->assignment_tow = $result['assignment_tow'];
+                $existingRecord->assignment_two = $result['assignment_two'];
                 $existingRecord->assignment_three = $result['assignment_three'];
                 $existingRecord->assignment_four = $result['assignment_four'];
                 $existingRecord->assignment_five = $result['assignment_five'];
@@ -321,12 +349,14 @@ class Examination extends Controller
                 $existingRecord->classwork_three = $result['classwork_three'];
                 $existingRecord->classwork_four = $result['classwork_four'];
                 $existingRecord->classwork_five = $result['classwork_five'];
-                $existingRecord->score = $result['score'];
-                $existingRecord->total = $total;
+                $existingRecord->test_one = $result['test_one'];
+                $existingRecord->test_two = $result['test_two'];
+                $existingRecord->test_three = $result['test_three'];
+                $existingRecord->score = $score; // Updated score calculation
+                $existingRecord->total = $total; // Updated total calculation
                 $existingRecord->session = $result['session'];
-                $existingRecord->examId = $result['exam'];
                 $existingRecord->save();
-                return response()->json(['message' => 'Midterm Results Updated Successfully!'], 200);
+                return response()->json(['message' => 'Continuous Assessment Updated Successfully!'], 200);
             } else {
                 // Create a new record if it doesn't exist
                 $ca = new ContinuousAssessment();
@@ -336,7 +366,7 @@ class Examination extends Controller
                 $ca->subject = $result['subject'];
                 $ca->classId = $result['classId'];
                 $ca->assignment_one = $result['assignment_one'];
-                $ca->assignment_tow = $result['assignment_tow'];
+                $ca->assignment_two = $result['assignment_two'];
                 $ca->assignment_three = $result['assignment_three'];
                 $ca->assignment_four = $result['assignment_four'];
                 $ca->assignment_five = $result['assignment_five'];
@@ -345,20 +375,23 @@ class Examination extends Controller
                 $ca->classwork_three = $result['classwork_three'];
                 $ca->classwork_four = $result['classwork_four'];
                 $ca->classwork_five = $result['classwork_five'];
-                $ca->score = $result['score'];
+                $ca->test_one = $result['test_one'];
+                $ca->test_two = $result['test_two'];
+                $ca->test_three = $result['test_three'];
+                $ca->score = $score; // Updated score calculation
+                $ca->total = $total; // Updated total calculation
                 $ca->session = $result['session'];
-                $ca->termId = $result['term']['id'];
-                $ca->term = $result['term']['term'];
-                $ca->examId = $result['exam'];
-                $ca->section = $result['section'];
-                $ca->total = $total;
+                // $ca->termId = $fetchTerm->term->id;
+                // $ca->term = $fetchTerm->term->term;
                 $ca->save();
             }
         }
 
-        return response()->json(['message' => 'Midterm Results Uploaded Successfully!'], 201);
+        return response()->json(['message' => 'Continuous Assessment Uploaded Successfully!'], 201);
     }
 
+
+    public function FetchContinousAssessment(Request $request) {}
 
     public function JuniorMockResult(Request $request)
     {
