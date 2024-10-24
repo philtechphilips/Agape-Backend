@@ -161,20 +161,20 @@ class Profiles extends Controller
     public function GetStudents($classes)
     {
         $students = Student::with('className', 'section', 'parent')
-        ->where('class_name_id', '=', $classes)
-        ->where('status', '=', "active")
-        ->get();
+            ->where('class_name_id', '=', $classes)
+            ->where('status', '=', "active")
+            ->get();
         return response()->json($students);
     }
 
     public function UpdateAllStudentStatus($classes, Request $request)
     {
         $students = Student::with('className', 'section', 'parent')
-        ->where('class_name_id', '=', $classes)
-        ->where('status', '=', "active")
-        ->get();
+            ->where('class_name_id', '=', $classes)
+            ->where('status', '=', "active")
+            ->get();
 
-        foreach($students as $stud){
+        foreach ($students as $stud) {
             $stud->update([
                 'status' => $request->newStatus,
                 'status_year' => date("Y")
@@ -183,6 +183,30 @@ class Profiles extends Controller
         return response()->json([
             'message' => 'Student(s) status updated successfully',
             'students' => $students
+        ]);
+    }
+
+    public function UpdateAStudentStatus($id, Request $request)
+    {
+        $student = Student::with('className', 'section', 'parent')
+            ->where('id', '=', $id)
+            ->first();
+
+        if (!$student) {
+            return response()->json([
+                'message' => 'Student not found!',
+                'students' => $student
+            ], 400);
+        }
+
+        $student->update([
+            'status' => $request->newStatus,
+            'status_year' => date("Y")
+        ]);
+
+        return response()->json([
+            'message' => 'Student status updated successfully',
+            'students' => $student
         ]);
     }
 

@@ -48,6 +48,7 @@ Route::middleware(['auth:sanctum'])->group(
         Route::get('/all-admin', [Profiles::class, 'AllAdmin']);
         Route::get('/students/{classes}', [Profiles::class, 'GetStudents']);
         Route::patch('/students-status/{classes}', [Profiles::class, 'UpdateAllStudentStatus']);
+        Route::patch('/student-status/{id}', [Profiles::class, 'UpdateAStudentStatus']);
         Route::get('/student/{id}', [Profiles::class, 'GetStudentById']);
 
         Route::delete('/delete-parent/{id}', [Profiles::class, 'DeleteParent']);
