@@ -167,6 +167,25 @@ class Profiles extends Controller
         return response()->json($students);
     }
 
+
+    public function GetGraduatedStudents()
+    {
+        $students = Student::with('className', 'section', 'parent')
+            ->where('status', '=', "Graduated")
+            ->get();
+        return response()->json($students);
+    }
+
+
+    public function GetWithdrawnStudents()
+    {
+        $students = Student::with('className', 'section', 'parent')
+            ->where('status', '=', "left")
+            ->get();
+        return response()->json($students);
+    }
+
+
     public function UpdateAllStudentStatus($classes, Request $request)
     {
         $students = Student::with('className', 'section', 'parent')

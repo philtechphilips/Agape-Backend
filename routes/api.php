@@ -42,6 +42,8 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/all-parent', [Profiles::class, 'AllParent']);
     Route::get('/all-admin', [Profiles::class, 'AllAdmin']);
     Route::get('/students/{classes}', [Profiles::class, 'GetStudents']);
+    Route::get('/view-students/graduated', [Profiles::class, 'GetGraduatedStudents']);
+    Route::get('/view-students/left', [Profiles::class, 'GetWithdrawnStudents']);
     Route::patch('/students-status/{classes}', [Profiles::class, 'UpdateAllStudentStatus']);
     Route::patch('/student-status/{id}', [Profiles::class, 'UpdateAStudentStatus']);
 
