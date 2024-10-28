@@ -242,6 +242,42 @@ class Examination extends Controller
         return response()->json(['message' => 'Mock Results Uploaded Successfully!'], 200);
     }
 
+
+    public function UpdateMidTermResult(Request $request)
+    {
+        foreach ($request->selectedData as $result) {
+            $total = $result['examMarks'];
+
+            $existingResultForTerm = Result::where([
+                'stuId' => $result['stuId'],
+                'termId' => $result['term'],
+                'examId' => $result['exam'],
+                'session' => $result['session'],
+                'classId' => $result['classId'],
+            ])->first();
+
+            if (!$existingResultForTerm) {
+                return response()->json(['message' => 'Cannot find result!'], 400);
+            }
+
+            $mid_term_result = MidtermResult::where([
+                'stuId' => $result['stuId'],
+                'termId' => $result['term'],
+                'examId' => $result['exam'],
+                'session' => $result['session'],
+                'subject' => $result['subject'],
+                'classId' => $result['classId'],
+            ])->first();
+
+            $mid_term_result->exam_mark = $result['examMarks'];
+            $mid_term_result->total = $total;
+            $mid_term_result->save();
+        }
+
+        return response()->json(['message' => 'Midterm Results Updated Successfully!'], 200);
+    }
+
+
     public function MidTermResult(Request $request)
     {
         foreach ($request->selectedData as $result) {
@@ -680,6 +716,13 @@ class Examination extends Controller
                 ->get();
         } else if ($exam == "2") {
             $examResults = MockResult::with(['exam', 'session', 'class', 'student', 'term'])
+                ->where('session', $session)
+                ->where('classId', $class)
+                ->where('examId', $exam)
+                ->where('subject', $subject)
+                ->get();
+        } else if ($exam == "3") {
+            $examResults = MidtermResult::with(['exam', 'session', 'class', 'student', 'term'])
                 ->where('session', $session)
                 ->where('classId', $class)
                 ->where('examId', $exam)

@@ -82,6 +82,7 @@ Route::middleware(['auth:sanctum', 'role:admin,teacher'])->group(function () {
     Route::post('/mock-exam', [Examination::class, 'MockResult']);
 
     Route::post('/midterm-result', [Examination::class, 'MidTermResult']);
+    Route::patch('/midterm-result', [Examination::class, 'UpdateMidTermResult']);
 
     Route::post('/continuous-assessment', [Examination::class, 'ContinousAssessment']);
     Route::get('/continuous-assessment', [Examination::class, 'FetchContinousAssessment']);
