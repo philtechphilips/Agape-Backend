@@ -12,25 +12,8 @@ use App\Http\Controllers\MobileAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
-
 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-
-    // Dashboard
-    Route::get('/dashboard', [Dashboard::class, 'Index']);
-    // Dashboard
-
-
     Route::post('/create-staff-profile', [Profiles::class, 'AddStaff']);
     Route::post('/create-parent-profile', [Profiles::class, 'AddParent']);
     Route::post('/create-admin-profile', [Profiles::class, 'AddAdmin']);
@@ -41,7 +24,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/all-staff', [Profiles::class, 'AllStaff']);
     Route::get('/all-parent', [Profiles::class, 'AllParent']);
     Route::get('/all-admin', [Profiles::class, 'AllAdmin']);
-    Route::get('/students/{classes}', [Profiles::class, 'GetStudents']);
+
     Route::get('/view-students/graduated', [Profiles::class, 'GetGraduatedStudents']);
     Route::get('/view-students/left', [Profiles::class, 'GetWithdrawnStudents']);
     Route::patch('/students-status/{classes}', [Profiles::class, 'UpdateAllStudentStatus']);
@@ -67,9 +50,6 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
     Route::post('/session', [Academics::class, 'AddSession']);
 
-    Route::patch('/result/{session}/{class}/{exam}', [Examination::class, 'BulkUpdateResultStatus']);
-    Route::patch('/release-single-report-card/{id}', [Examination::class, 'ReleaseSingleReportCard']);
-
 
     // Online Student application
     Route::get('/applications', [StudentApplication::class, 'FetchAllApplications']);
@@ -80,6 +60,12 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 Route::middleware(['auth:sanctum', 'role:admin,teacher'])->group(function () {
     Route::post('/first-term-exam', [Examination::class, 'FirstTermResult']);
     Route::post('/mock-exam', [Examination::class, 'MockResult']);
+
+
+    Route::patch('/result/{session}/{class}/{exam}', [Examination::class, 'BulkUpdateResultStatus']);
+    Route::patch('/release-single-report-card/{id}', [Examination::class, 'ReleaseSingleReportCard']);
+
+    Route::get('/students/{classes}', [Profiles::class, 'GetStudents']);
 
     Route::post('/midterm-result', [Examination::class, 'MidTermResult']);
     Route::patch('/midterm-result', [Examination::class, 'UpdateMidTermResult']);
@@ -106,6 +92,10 @@ Route::middleware(['auth:sanctum', 'role:admin,teacher'])->group(function () {
     // Appraisal
     Route::post('/appraisal', [Examination::class, 'CreateAppraisal']);
     // Appraisal
+
+    // Dashboard
+    Route::get('/dashboard', [Dashboard::class, 'Index']);
+    // Dashboard
 });
 
 
@@ -153,6 +143,7 @@ Route::middleware(['auth:sanctum'])->group(
 
         Route::get('/get-result/{session}/{class}/{exam}/{subject}', [Examination::class, 'FetchResultToEdit']);
         Route::get('/get-old-result-for-second-term-report/{class}/{exam}/{subject}', [Examination::class, 'FetchFirstTermResultForSecondReport']);
+        Route::get('/get-ca/{class}/{exam}/{subject}', [Examination::class, 'FetchCAForReport']);
         Route::get('/get-old-result-for-third-term-report/{class}/{exam}/{subject}', [Examination::class, 'FetchSecondTermResultForThirdReport']);
         Route::get('/get-result/{session}/{class}/{exam}', [Examination::class, 'FetchResultData']);
 

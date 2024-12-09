@@ -127,7 +127,7 @@ class Examination extends Controller
             $results = $this->calculateGradeAndRemarks($student_section, $total);
             $grade = $results['grade'];
             $remarks = $results['remarks'];
-
+Log::info($result['session']);
             $existingResultForTerm = Result::where([
                 'stuId' => $result['stuId'],
                 'termId' => $result['term']['id'],
@@ -152,6 +152,7 @@ class Examination extends Controller
                 'termId' => $result['term']['id'],
                 'examId' => $result['exam'],
                 'section' => $result['section'],
+                'session' => $result['session'],
             ])->first();
 
             if ($existingRecord) {
@@ -740,6 +741,18 @@ class Examination extends Controller
             ->where('term', "1st Term")
             ->where('classId', $class)
             ->where('examId', $exam)
+            ->where('subject', $subject->subject)
+            ->get();
+        return response()->json($examResults, 200);
+    }
+
+    public function FetchCAForReport($class, $session, $term, $subject)
+    {
+        $subject = Subject::find($subject);
+        $examResults = MidtermResult::with(['exam', 'class', 'student', 'term'])
+            ->where('session', $session)
+            ->where('classId', $class)
+            ->where('termId', $term)
             ->where('subject', $subject->subject)
             ->get();
         return response()->json($examResults, 200);
