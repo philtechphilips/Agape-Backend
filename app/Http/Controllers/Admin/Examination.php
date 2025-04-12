@@ -127,7 +127,7 @@ class Examination extends Controller
             $results = $this->calculateGradeAndRemarks($student_section, $total);
             $grade = $results['grade'];
             $remarks = $results['remarks'];
-Log::info($result['session']);
+
             $existingResultForTerm = Result::where([
                 'stuId' => $result['stuId'],
                 'termId' => $result['term']['id'],
@@ -568,6 +568,7 @@ Log::info($result['session']);
                 'stuId' => $result['stuId'],
                 'subject' => $result['subject'],
                 'termId' => $result['term']['id'],
+                'session' => $result['session'],
                 'examId' => $result['exam'],
                 'section' => $result['section'],
             ])->first();
