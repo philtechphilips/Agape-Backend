@@ -50,7 +50,10 @@ class Academics extends Controller
 
     public function GetClass()
     {
-        $class = ClassName::with('sections', 'teachers')->get();
+        $class = ClassName::with('sections', 'teachers')
+            ->withCount(['students' => function ($query) {
+                $query->where('status', 'Active')->orWhere('status', 'active');
+            }])->get();
         return response()->json($class, 200);
     }
 
@@ -108,11 +111,12 @@ class Academics extends Controller
             'term' => 'required',
         ]);
 
-        $session = new Session();
-        $session->session  = $request->session;
-        $session->term  = $request->term;
-        $session->save();
-        return response()->json(['message' => 'Session Created Sucessfully!'], 200);
+        Session::create([
+            'session' => $request->input('session'),
+            'term' => $request->input('term'),
+        ]);
+
+        return response()->json(['message' => 'Session Created Successfully!'], 200);
     }
 
     public function GetSession()

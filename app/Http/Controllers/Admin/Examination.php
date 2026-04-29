@@ -21,8 +21,11 @@ use App\Models\ContinuousAssessment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+use App\Traits\Paginatable;
+
 class Examination extends Controller
 {
+    use Paginatable;
     public function GetExam()
     {
         $exam = Exam::all();
@@ -774,8 +777,8 @@ class Examination extends Controller
 
     public function FetchResult($stuId)
     {
-        $result = Result::where("stuId", "=", $stuId)->with(["session",  "term", "exam", "students.className", "students.section"])->get();
-        return response()->json($result, 200);
+        $result = Result::where("stuId", "=", $stuId)->with(["session",  "term", "exam", "students.className", "students.section"]);
+        return $this->paginateResponse($result, 20);
     }
 
     public function UpdateResultStatus(Request $request, $id)
@@ -1083,26 +1086,26 @@ class Examination extends Controller
     public function GetReportCard(Request $request)
     {
         if ($request->exam == 2) {
-            $session = Session::where('id', $request->session)->with("term")->first();
+            $session = Session::where('id', $request->input('session'))->with("term")->first();
             $result = MockResult::where([
                 ['examId', $request->exam],
                 ['classId', $request->classes],
                 ['stuId', $request->student],
-                ['session', $request->session],
+                ['session', $request->input('session')],
             ])->get();
             return response()->json(['result' => $result, 'session' => $session], 200);
         } else if ($request->exam == 3) {
-            $session = Session::where('id', $request->session)->with("term")->first();
+            $session = Session::where('id', $request->input('session'))->with("term")->first();
             $result = MidtermResult::where([
                 ['examId', $request->exam],
                 ['classId', $request->classes],
                 ['stuId', $request->student],
-                ['session', $request->session],
+                ['session', $request->input('session')],
             ])->get();
             return response()->json(['result' => $result, 'session' => $session], 200);
         } else {
-            $session = Session::where('id', $request->session)->with("term")->first();
-            $find_session = Session::where('id', $request->session)->with("term")->first();
+            $session = Session::where('id', $request->input('session'))->with("term")->first();
+            $find_session = Session::where('id', $request->input('session'))->with("term")->first();
             if ($find_session) {
                 if ($find_session) {
                     if ($find_session->term == 1) {
@@ -1110,21 +1113,21 @@ class Examination extends Controller
                             ['examId', $request->exam],
                             ['classId', $request->classes],
                             ['stuId', $request->student],
-                            ['session', $request->session],
+                            ['session', $request->input('session')],
                         ])->get();
                     } else if ($find_session->term == 2) {
                         $result = SecondTermResult::where([
                             ['examId', $request->exam],
                             ['classId', $request->classes],
                             ['stuId', $request->student],
-                            ['session', $request->session],
+                            ['session', $request->input('session')],
                         ])->get();
                     } else {
                         $result = ThirdTermResult::where([
                             ['examId', $request->exam],
                             ['classId', $request->classes],
                             ['stuId', $request->student],
-                            ['session', $request->session],
+                            ['session', $request->input('session')],
                         ])->get();
                     }
                 }
@@ -1135,14 +1138,14 @@ class Examination extends Controller
                 ['examId', $request->exam],
                 ['classId', $request->classes],
                 ['stuId', $request->student],
-                ['session', $request->session],
+                ['session', $request->input('session')],
             ])->first();
 
             $teachersComment = Comment::where([
                 ['examId', $request->exam],
                 ['classId', $request->classes],
                 ['stuId', $request->student],
-                ['session', $request->session],
+                ['session', $request->input('session')],
                 ['comment_type', "teacher"],
             ])->first();
 
@@ -1150,7 +1153,7 @@ class Examination extends Controller
                 ['examId', $request->exam],
                 ['classId', $request->classes],
                 ['stuId', $request->student],
-                ['session', $request->session],
+                ['session', $request->input('session')],
                 ['comment_type', "principal"],
             ])->first();
 

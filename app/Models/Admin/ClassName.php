@@ -19,4 +19,9 @@ class ClassName extends Model
     {
         return $this->belongsTo(Staff::class, 'teacher');
     }
+
+    public function students()
+    {
+        return $this->hasMany(Student::class, 'class_name_id');
+    }
 }

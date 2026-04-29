@@ -20,9 +20,12 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::post('/create-student-profile', [Profiles::class, 'AddStudent']);
     Route::patch('/student-passport/{id}', [Profiles::class, 'UploadStudentPassport']);
     Route::patch('/update-student/{id}', [Profiles::class, 'UpdateStudent']);
+    Route::patch('/update-admin/{id}', [Profiles::class, 'UpdateAdmin']);
 
     Route::get('/all-staff', [Profiles::class, 'AllStaff']);
+    Route::patch('/update-staff/{id}', [Profiles::class, 'UpdateStaff']);
     Route::get('/all-parent', [Profiles::class, 'AllParent']);
+    Route::patch('/update-parent/{id}', [Profiles::class, 'UpdateParent']);
     Route::get('/all-admin', [Profiles::class, 'AllAdmin']);
 
     Route::get('/view-students/graduated', [Profiles::class, 'GetGraduatedStudents']);

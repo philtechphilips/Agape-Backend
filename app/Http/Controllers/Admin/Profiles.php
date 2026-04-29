@@ -14,8 +14,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use JD\Cloudder\Facades\Cloudder;
 
+use App\Traits\Paginatable;
+
 class Profiles extends Controller
 {
+    use Paginatable;
     public function AddStudent(Request $request)
     {
         $request->validate([
@@ -82,7 +85,10 @@ class Profiles extends Controller
             'adNum' => 'required|string|max:225',
             'adDate' => 'required|string|max:225',
             'rollNumber' => 'required',
-            'address' => 'required|string'
+            'address' => 'required|string',
+            'className' => 'required',
+            'section' => 'required',
+            'parent' => 'required',
         ]);
 
         $student = Student::find($id);
@@ -110,7 +116,10 @@ class Profiles extends Controller
             'adNum' => $request->adNum,
             'adDate' => $request->adDate,
             'rollNumber' => $request->rollNumber,
-            'address' => $request->address
+            'address' => $request->address,
+            'class_name_id' => $request->className,
+            'section' => $request->section,
+            'parent_id' => $request->parent,
         ]);
 
         return response()->json(['message' => 'Student Profile Updated Successfully!'], 200);
@@ -154,35 +163,73 @@ class Profiles extends Controller
 
     public function AllStaff()
     {
-        $staffs = Staff::all();
-        return response()->json($staffs);
+        $staffs = Staff::query();
+        return $this->paginateResponse($staffs, 20);
+    }
+
+    public function UpdateStaff(Request $request, $id)
+    {
+        $request->validate([
+            'surname' => 'required|string|max:225',
+            'firstname' => 'required|string|max:225',
+            'email' => 'required|email|unique:users,email,' . Staff::find($id)->user_id,
+            'phone' => 'required',
+            'role' => 'required|string|max:225',
+        ]);
+
+        $staff = Staff::find($id);
+
+        if (!$staff) {
+            return response()->json(['message' => 'Staff not found'], 404);
+        }
+
+        $user = User::find($staff->user_id);
+        if ($user) {
+            $user->update([
+                'name' => $request->surname . ' ' . $request->firstname,
+                'email' => $request->email,
+                'role' => $request->role,
+            ]);
+        }
+
+        $staff->update([
+            'surname' => $request->surname,
+            'firstname' => $request->firstname,
+            'middlename' => $request->middlename,
+            'role' => $request->role,
+            'address' => $request->address,
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ]);
+
+        return response()->json(['message' => 'Staff Profile Updated Successfully!'], 200);
     }
 
     public function GetStudents($classes)
     {
         $students = Student::with('className', 'section', 'parent')
             ->where('class_name_id', '=', $classes)
-            ->where('status', '=', "active")
-            ->get();
-        return response()->json($students);
+            ->where('status', '=', "active");
+        
+        return $this->paginateResponse($students, 20);
     }
 
 
     public function GetGraduatedStudents()
     {
         $students = Student::with('className', 'section', 'parent')
-            ->where('status', '=', "Graduated")
-            ->get();
-        return response()->json($students);
+            ->where('status', '=', "Graduated");
+        
+        return $this->paginateResponse($students, 20);
     }
 
 
     public function GetWithdrawnStudents()
     {
         $students = Student::with('className', 'section', 'parent')
-            ->where('status', '=', "left")
-            ->get();
-        return response()->json($students);
+            ->where('status', '=', "left");
+        
+        return $this->paginateResponse($students, 20);
     }
 
 
@@ -266,8 +313,41 @@ class Profiles extends Controller
 
     public function AllParent()
     {
-        $parent = Guardian::all();
-        return response()->json($parent);
+        $parent = Guardian::query();
+        return $this->paginateResponse($parent, 20);
+    }
+
+    public function UpdateParent(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:225',
+            'email' => 'required|email|unique:users,email,' . Guardian::find($id)->user_id,
+            'phone' => 'required',
+            'address' => 'required|string',
+        ]);
+
+        $parent = Guardian::find($id);
+
+        if (!$parent) {
+            return response()->json(['message' => 'Parent not found'], 404);
+        }
+
+        $user = User::find($parent->user_id);
+        if ($user) {
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+            ]);
+        }
+
+        $parent->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+        ]);
+
+        return response()->json(['message' => 'Parent Profile Updated Successfully!'], 200);
     }
 
     public function AddAdmin(Request $request)
@@ -300,8 +380,39 @@ class Profiles extends Controller
 
     public function AllAdmin()
     {
-        $admin = Admin::all();
-        return response()->json($admin);
+        $admin = Admin::query();
+        return $this->paginateResponse($admin, 20);
+    }
+
+    public function UpdateAdmin(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:225',
+            'email' => 'required|email|unique:users,email,' . Admin::find($id)->user_id,
+            'phone' => 'required',
+        ]);
+
+        $admin = Admin::find($id);
+
+        if (!$admin) {
+            return response()->json(['message' => 'Administrator not found'], 404);
+        }
+
+        $user = User::find($admin->user_id);
+        if ($user) {
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+            ]);
+        }
+
+        $admin->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ]);
+
+        return response()->json(['message' => 'Administrator Profile Updated Successfully!'], 200);
     }
 
     public function DeleteParent($id)
