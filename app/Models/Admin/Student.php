@@ -5,9 +5,11 @@ namespace App\Models\Admin;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\HasUuid;
+
 class Student extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
     protected $fillable = ['surname', 'firstname', 'middlename', 'city', 'gender', 'dob', 'country', 'state', 'lga', 'religion', 'class_name_id', 'section', 'adNum', 'adDate', 'rollNumber', 'address', 'parent_id', 'user_id', 'imageUrl', 'status', 'status_year'];
 
     public function className()

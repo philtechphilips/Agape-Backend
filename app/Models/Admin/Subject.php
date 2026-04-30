@@ -5,9 +5,11 @@ namespace App\Models\Admin;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\HasUuid;
+
 class Subject extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
     protected $fillable = ['subject', 'section', 'teacher'];
 
     public function sections()

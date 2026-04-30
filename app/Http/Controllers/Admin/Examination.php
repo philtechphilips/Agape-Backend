@@ -695,43 +695,49 @@ class Examination extends Controller
 
     public function FetchResultToEdit($session, $class, $exam, $subject)
     {
-
         $session_data = Session::where("id", "=", $session)->first();
+        $subject_data = Subject::find($subject);
+
+        if (!$subject_data) {
+            return response()->json([], 200);
+        }
+
+        $subjectName = $subject_data->subject;
 
         if ($exam == "1" && $session_data->term == "1") {
             $examResults = FirstTermResults::with(['exam', 'session', 'class', 'student', 'term'])
                 ->where('session', $session)
                 ->where('classId', $class)
                 ->where('examId', $exam)
-                ->where('subject', $subject)
+                ->where('subject', $subjectName)
                 ->get();
         } else if ($exam == "1" && $session_data->term == "2") {
             $examResults = SecondTermResult::with(['exam', 'session', 'class', 'student', 'term'])
                 ->where('session', $session)
                 ->where('classId', $class)
                 ->where('examId', $exam)
-                ->where('subject', $subject)
+                ->where('subject', $subjectName)
                 ->get();
         } else if ($exam == "1" && $session_data->term == "3") {
             $examResults = ThirdTermResult::with(['exam', 'session', 'class', 'student', 'term'])
                 ->where('session', $session)
                 ->where('classId', $class)
                 ->where('examId', $exam)
-                ->where('subject', $subject)
+                ->where('subject', $subjectName)
                 ->get();
         } else if ($exam == "2") {
             $examResults = MockResult::with(['exam', 'session', 'class', 'student', 'term'])
                 ->where('session', $session)
                 ->where('classId', $class)
                 ->where('examId', $exam)
-                ->where('subject', $subject)
+                ->where('subject', $subjectName)
                 ->get();
         } else if ($exam == "3") {
             $examResults = MidtermResult::with(['exam', 'session', 'class', 'student', 'term'])
                 ->where('session', $session)
                 ->where('classId', $class)
                 ->where('examId', $exam)
-                ->where('subject', $subject)
+                ->where('subject', $subjectName)
                 ->get();
         }
         return response()->json($examResults, 200);
@@ -777,6 +783,10 @@ class Examination extends Controller
 
     public function FetchResult($stuId)
     {
+        $student = Student::where('uuid', $stuId)->orWhere('id', $stuId)->first();
+        if ($student) {
+            $stuId = $student->id;
+        }
         $result = Result::where("stuId", "=", $stuId)->with(["session",  "term", "exam", "students.className", "students.section"]);
         return $this->paginateResponse($result, 20);
     }
@@ -971,24 +981,26 @@ class Examination extends Controller
             ])->first();
 
             if ($existingRecord) {
-                return response()->json(['message' => 'One of the comment exist!'], 400);
+                $existingRecord->update([
+                    'comment' => $result['comment'],
+                ]);
+            } else {
+                $comment = new Comment();
+                $comment->stuId = $result['stuId'];
+                $comment->surname = $result['surname'];
+                $comment->firstname = $result['firstname'];
+                $comment->comment = $result['comment'];
+                $comment->comment_type = $result['comment_type'];
+                $comment->classId = $result['classId'];
+                $comment->session = $result['session'];
+                $comment->termId = $session->term;
+                $comment->term = $term->term;
+                $comment->examId = $result['exam'];
+                $comment->save();
             }
-
-            $comment = new Comment();
-            $comment->stuId = $result['stuId'];
-            $comment->surname = $result['surname'];
-            $comment->firstname = $result['firstname'];
-            $comment->comment = $result['comment'];
-            $comment->comment_type = $result['comment_type'];
-            $comment->classId = $result['classId'];
-            $comment->session = $result['session'];
-            $comment->termId = $session->term;
-            $comment->term = $term->term;
-            $comment->examId = $result['exam'];
-            $comment->save();
         }
 
-        return response()->json(['message' => 'Comment Uploaded Successfully!'], 200);
+        return response()->json(['message' => 'Comments Saved Successfully!'], 200);
     }
 
     public function UpdateTeachersComment(Request $request)
@@ -1059,38 +1071,61 @@ class Examination extends Controller
             ])->first();
 
             if ($existingRecord) {
-                return response()->json(['message' => 'One of the appraisal exist!'], 400);
+                $existingRecord->update([
+                    'punctuality' => $result['punctuality'],
+                    'neatness' => $result['neatness'],
+                    'respect' => $result['respect'],
+                    'interractions' => $result['interractions'],
+                    'sport' => $result['sport'],
+                    'initiative' => $result['initiative'],
+                ]);
+            } else {
+                $appraisal = new Appraisal();
+                $appraisal->stuId = $result['stuId'];
+                $appraisal->surname = $result['surname'];
+                $appraisal->firstname = $result['firstname'];
+                $appraisal->punctuality = $result['punctuality'];
+                $appraisal->neatness = $result['neatness'];
+                $appraisal->respect = $result['respect'];
+                $appraisal->interractions = $result['interractions'];
+                $appraisal->sport = $result['sport'];
+                $appraisal->initiative = $result['initiative'];
+                $appraisal->classId = $result['classId'];
+                $appraisal->session = $result['session'];
+                $appraisal->termId = $session->term;
+                $appraisal->term = $term->term;
+                $appraisal->examId = $result['exam'];
+                $appraisal->save();
             }
-
-            $appraisal = new Appraisal();
-            $appraisal->stuId = $result['stuId'];
-            $appraisal->surname = $result['surname'];
-            $appraisal->firstname = $result['firstname'];
-            $appraisal->punctuality = $result['punctuality'];
-            $appraisal->neatness = $result['neatness'];
-            $appraisal->respect = $result['respect'];
-            $appraisal->interractions = $result['interractions'];
-            $appraisal->sport = $result['sport'];
-            $appraisal->initiative = $result['initiative'];
-            $appraisal->classId = $result['classId'];
-            $appraisal->session = $result['session'];
-            $appraisal->termId = $session->term;
-            $appraisal->term = $term->term;
-            $appraisal->examId = $result['exam'];
-            $appraisal->save();
         }
 
-        return response()->json(['message' => 'Appraisal Uploaded Successfully!'], 200);
+        return response()->json(['message' => 'Appraisals Saved Successfully!'], 200);
+    }
+
+    public function FetchAppraisals($session, $class, $exam)
+    {
+        $appraisals = Appraisal::with(['exam', 'session', 'class', 'student', 'term'])
+            ->where('session', $session)
+            ->where('classId', $class)
+            ->where('examId', $exam)
+            ->get();
+        return response()->json($appraisals, 200);
     }
 
     public function GetReportCard(Request $request)
     {
+        $stuId = $request->student;
+        $student = Student::where('uuid', $stuId)->orWhere('id', $stuId)->first();
+        if ($student) {
+            $stuId = $student->id;
+        }
+
         if ($request->exam == 2) {
             $session = Session::where('id', $request->input('session'))->with("term")->first();
             $result = MockResult::where([
                 ['examId', $request->exam],
                 ['classId', $request->classes],
-                ['stuId', $request->student],
+                ['stuId', $stuId],
                 ['session', $request->input('session')],
             ])->get();
             return response()->json(['result' => $result, 'session' => $session], 200);
@@ -1099,7 +1134,7 @@ class Examination extends Controller
             $result = MidtermResult::where([
                 ['examId', $request->exam],
                 ['classId', $request->classes],
-                ['stuId', $request->student],
+                ['stuId', $stuId],
                 ['session', $request->input('session')],
             ])->get();
             return response()->json(['result' => $result, 'session' => $session], 200);
@@ -1112,21 +1147,21 @@ class Examination extends Controller
                         $result = FirstTermResults::where([
                             ['examId', $request->exam],
                             ['classId', $request->classes],
-                            ['stuId', $request->student],
+                            ['stuId', $stuId],
                             ['session', $request->input('session')],
                         ])->get();
                     } else if ($find_session->term == 2) {
                         $result = SecondTermResult::where([
                             ['examId', $request->exam],
                             ['classId', $request->classes],
-                            ['stuId', $request->student],
+                            ['stuId', $stuId],
                             ['session', $request->input('session')],
                         ])->get();
                     } else {
                         $result = ThirdTermResult::where([
                             ['examId', $request->exam],
                             ['classId', $request->classes],
-                            ['stuId', $request->student],
+                            ['stuId', $stuId],
                             ['session', $request->input('session')],
                         ])->get();
                     }
@@ -1137,14 +1172,14 @@ class Examination extends Controller
             $appraisal = Appraisal::where([
                 ['examId', $request->exam],
                 ['classId', $request->classes],
-                ['stuId', $request->student],
+                ['stuId', $stuId],
                 ['session', $request->input('session')],
             ])->first();
 
             $teachersComment = Comment::where([
                 ['examId', $request->exam],
                 ['classId', $request->classes],
-                ['stuId', $request->student],
+                ['stuId', $stuId],
                 ['session', $request->input('session')],
                 ['comment_type', "teacher"],
             ])->first();
@@ -1152,7 +1187,7 @@ class Examination extends Controller
             $principalsComment = Comment::where([
                 ['examId', $request->exam],
                 ['classId', $request->classes],
-                ['stuId', $request->student],
+                ['stuId', $stuId],
                 ['session', $request->input('session')],
                 ['comment_type', "principal"],
             ])->first();
@@ -1163,5 +1198,36 @@ class Examination extends Controller
 
             return response()->json(['session' => $session, 'result' => $result, 'student' => $StudentsInClass, "t_comment" => $teachersComment, "p_comment" => $principalsComment, "appraisal" => $appraisal], 200);
         }
+    }
+
+    public function DeleteResult($id, $exam, $session)
+    {
+        $session_data = Session::find($session);
+        if (!$session_data) {
+            return response()->json(['message' => 'Session not found'], 404);
+        }
+
+        $model = null;
+        if ($exam == "1") {
+            if ($session_data->term == "1") $model = FirstTermResults::class;
+            else if ($session_data->term == "2") $model = SecondTermResult::class;
+            else if ($session_data->term == "3") $model = ThirdTermResult::class;
+        } else if ($exam == "2") {
+            $model = MockResult::class;
+        } else if ($exam == "3") {
+            $model = MidtermResult::class;
+        }
+
+        if (!$model) {
+            return response()->json(['message' => 'Invalid exam type or session'], 400);
+        }
+
+        $record = $model::find($id);
+        if (!$record) {
+            return response()->json(['message' => 'Record not found'], 404);
+        }
+
+        $record->delete();
+        return response()->json(['message' => 'Result deleted successfully'], 200);
     }
 }

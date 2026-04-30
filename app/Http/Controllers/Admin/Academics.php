@@ -11,8 +11,11 @@ use App\Models\Admin\Subject;
 use App\Models\Admin\Term;
 use Illuminate\Http\Request;
 
+use App\Traits\Paginatable;
+
 class Academics extends Controller
 {
+    use Paginatable;
     public function AddSection(Request $request)
     {
         $request->validate([
@@ -50,17 +53,40 @@ class Academics extends Controller
 
     public function GetClass()
     {
-        $class = ClassName::with('sections', 'teachers')
+        $query = ClassName::with('sections', 'teachers')
             ->withCount(['students' => function ($query) {
                 $query->where('status', 'Active')->orWhere('status', 'active');
-            }])->get();
-        return response()->json($class, 200);
+            }]);
+        return $this->paginateResponse($query, 10);
     }
 
     public function GetClassById($id)
     {
         $class = ClassName::where("id", "=", $id)->with('sections', 'teachers')->get();
         return response()->json($class, 200);
+    }
+
+    public function UpdateClass(Request $request, $id)
+    {
+        $request->validate([
+            'section' => 'required',
+            'className' => 'required',
+            'teacher' => 'required',
+        ]);
+
+        $class = ClassName::where('uuid', $id)->orWhere('id', $id)->first();
+
+        if (!$class) {
+            return response()->json(['message' => 'Class not found'], 404);
+        }
+
+        $class->update([
+            'section' => $request->section,
+            'classname' => $request->className,
+            'teacher' => $request->teacher,
+        ]);
+
+        return response()->json(['message' => 'Class Updated Successfully!'], 200);
     }
 
     public function AddSubject(Request $request)
@@ -98,9 +124,12 @@ class Academics extends Controller
 
     public function DeleteSubject($id)
     {
-        $subject = Subject::find($id);
-        $delete = $subject->delete();
-        return response()->json(['message' => 'Subject Deleted Suessfully!'], 200);
+        $subject = Subject::where('uuid', $id)->orWhere('id', $id)->first();
+        if (!$subject) {
+            return response()->json(['message' => 'Subject not found'], 404);
+        }
+        $subject->delete();
+        return response()->json(['message' => 'Subject Deleted Successfully!'], 200);
     }
 
 
@@ -131,17 +160,56 @@ class Academics extends Controller
         return response()->json($session, 200);
     }
 
+    public function ActivateSession($id)
+    {
+        $session = Session::where('uuid', $id)->orWhere('id', $id)->first();
+        if (!$session) {
+            return response()->json(['message' => 'Session not found'], 404);
+        }
+
+        // Deactivate all
+        Session::query()->update(['status' => 0]);
+
+        // Activate this one
+        $session->update(['status' => 1]);
+
+        return response()->json(['message' => 'Session Activated Successfully!'], 200);
+    }
+
     public function DeleteSession($id)
     {
-        $session = Session::find($id);
-        $delete = $session->delete();
-        return response()->json(['message' => 'Session Deleted Suessfully!'], 200);
+        $session = Session::where('uuid', $id)->orWhere('id', $id)->first();
+        if (!$session) {
+            return response()->json(['message' => 'Session not found'], 404);
+        }
+        $session->delete();
+        return response()->json(['message' => 'Session Deleted Successfully!'], 200);
     }
 
     public function GetTerm()
     {
         $term = Term::all();
         return response()->json($term, 200);
+    }
+
+    public function DeleteSection($id)
+    {
+        $section = Section::where('uuid', $id)->orWhere('id', $id)->first();
+        if (!$section) {
+            return response()->json(['message' => 'Section not found'], 404);
+        }
+        $section->delete();
+        return response()->json(['message' => 'Section Deleted Successfully!'], 200);
+    }
+
+    public function DeleteClass($id)
+    {
+        $class = ClassName::where('uuid', $id)->orWhere('id', $id)->first();
+        if (!$class) {
+            return response()->json(['message' => 'Class not found'], 404);
+        }
+        $class->delete();
+        return response()->json(['message' => 'Class Deleted Successfully!'], 200);
     }
 
     public function PromoteStudent(Request $request)

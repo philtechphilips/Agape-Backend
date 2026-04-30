@@ -91,7 +91,7 @@ class Profiles extends Controller
             'parent' => 'required',
         ]);
 
-        $student = Student::find($id);
+        $student = Student::where('uuid', $id)->orWhere('id', $id)->first();
 
         if (!$student) {
             return response()->json(['message' => 'Student not found'], 404);
@@ -457,5 +457,64 @@ class Profiles extends Controller
         ]);
 
         return response()->json(['message' => 'Passport uploaded Suessfully!'], 200);
+    }
+
+    public function UpdateMyProfile(Request $request)
+    {
+        $user = $request->user();
+        $request->validate([
+            'name' => 'required|string|max:225',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string',
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+        ]);
+
+        // Update linked profile based on role
+        if ($user->role === 'admin') {
+            Admin::where('user_id', $user->id)->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+            ]);
+        } elseif ($user->role === 'staff' || $user->role === 'teacher') {
+            Staff::where('user_id', $user->id)->update([
+                'surname' => explode(' ', $request->name)[0] ?? '',
+                'firstname' => explode(' ', $request->name)[1] ?? '',
+                'email' => $request->email,
+                'phone' => $request->phone,
+            ]);
+        } elseif ($user->role === 'parent') {
+            Guardian::where('user_id', $user->id)->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+            ]);
+        }
+
+        return response()->json(['message' => 'Profile updated successfully', 'user' => $user]);
+    }
+
+    public function ChangeMyPassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|confirmed|min:8',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['message' => 'Current password does not match'], 422);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return response()->json(['message' => 'Password changed successfully']);
     }
 }
