@@ -31,7 +31,6 @@
             max-width: 600px;
             margin: 40px auto;
             background-color: #ffffff;
-            border: 1px solid #f1f5f9;
             border-top: 6px solid #03088d;
         }
         .header {
@@ -63,7 +62,6 @@
             letter-spacing: 0.1em;
             color: #94a3b8;
             padding-bottom: 8px;
-            border-bottom: 1px solid #f1f5f9;
         }
         .data-table td {
             padding: 12px 0;
@@ -87,7 +85,6 @@
             padding: 30px 40px;
             background-color: #f8fafc;
             text-align: center;
-            border-top: 1px solid #f1f5f9;
         }
         .footer-text {
             font-size: 10px;

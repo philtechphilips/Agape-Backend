@@ -31,7 +31,6 @@
             max-width: 600px;
             margin: 40px auto;
             background-color: #ffffff;
-            border: 1px solid #f1f5f9;
             border-top: 6px solid #03088d;
         }
         .header {
@@ -53,7 +52,6 @@
         }
         .app-number-box {
             background-color: #f8fafc;
-            border: 1px dashed #cbd5e1;
             padding: 20px;
             text-align: center;
             margin: 30px 0;
@@ -89,7 +87,6 @@
             padding: 30px 40px;
             background-color: #f8fafc;
             text-align: center;
-            border-top: 1px solid #f1f5f9;
         }
         .footer-text {
             font-size: 10px;

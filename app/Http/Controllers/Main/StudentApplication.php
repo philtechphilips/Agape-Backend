@@ -16,6 +16,7 @@ class StudentApplication extends Controller
 {
     public function SubmitApplication(Request $request)
     {
+        Log::info('Incoming Application:', $request->all());
         $request->validate([
             'name' => 'required|string|max:225',
             'dob' => 'required',
