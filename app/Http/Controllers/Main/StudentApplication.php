@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Main;
 
 use App\Http\Controllers\Controller;
 use App\Models\Main\Application;
+use App\Models\User;
+use App\Mail\ApplicationSubmittedParent;
+use App\Mail\ApplicationSubmittedAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class StudentApplication extends Controller
 {
@@ -49,10 +53,32 @@ class StudentApplication extends Controller
         $application->mothers_place_of_work = $request->mothersPlaceOfWork;
         $application->mothers_phone = $request->mothersPhone;
         $application->fathers_phone = $request->fathersPhone;
+        $application->parent_email = $request->parentEmail;
         $application->name_of_financer  = $request->nameOfFinancer;
         $application->save();
 
-        return response()->json(['message' => 'Application Submitted Sucessfully!', 'appNum' => $app_num], 200);
+        // Send email to Parent
+        if ($application->parent_email) {
+            try {
+                Mail::to($application->parent_email)->send(new ApplicationSubmittedParent($application));
+            } catch (\Exception $e) {
+                Log::error("Failed to send parent email: " . $e->getMessage());
+            }
+        }
+
+        // Send email to Admins
+        try {
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                if ($admin->email) {
+                    Mail::to($admin->email)->send(new ApplicationSubmittedAdmin($application));
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Failed to send admin emails: " . $e->getMessage());
+        }
+
+        return response()->json(['message' => 'Application Submitted Sucessfully!', 'appNum' => $app_num, 'application' => $application], 200);
     }
 
 
@@ -89,13 +115,13 @@ class StudentApplication extends Controller
     }
 
 
-    public function UploadStudentPassport(Request $request, $id)
+    public function UploadStudentPassport(Request $request, $app_num)
     {
         $this->validate($request, [
             'image' => 'required',
         ]);
 
-        $student = Application::find($id);
+        $student = Application::where('app_num', $app_num)->first();
 
         Log::info($request->image);
 
