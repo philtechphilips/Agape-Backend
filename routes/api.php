@@ -71,6 +71,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
     // Online Student application
     Route::get('/applications', [StudentApplication::class, 'FetchAllApplications']);
+    Route::get('/applications/export', [StudentApplication::class, 'ExportApplications']);
     Route::delete('/delete-application/{app_num}', [StudentApplication::class, 'DeleteApplication']);
 
     // Analytics & Performance

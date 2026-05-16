@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Log;
 use JD\Cloudder\Facades\Cloudder;
 
 use App\Traits\Paginatable;
+use App\Mail\NewAccountWelcome;
+use Illuminate\Support\Facades\Mail;
 
 class Profiles extends Controller
 {
@@ -69,6 +71,16 @@ class Profiles extends Controller
                 'parent_id' => $request->parent,
                 'user_id' => $user->id,
             ]);
+
+            // Send to parent email if student was created
+            try {
+                $guardian = Guardian::find($request->parent);
+                if ($guardian && $guardian->email) {
+                    Mail::to($guardian->email)->send(new NewAccountWelcome($user, strtolower($request->surname)));
+                }
+            } catch (\Exception $e) {
+                Log::error("Failed to send student welcome email: " . $e->getMessage());
+            }
         }
         return response()->json(['message' => 'Student Profile Created Sucessfully!'], 200);
     }
@@ -146,7 +158,7 @@ class Profiles extends Controller
         ]);
 
         if ($user) {
-            $staf = Staff::create([
+            Staff::create([
                 'surname' => $request->surname,
                 'firstname' => $request->firstname,
                 'middlename' => $request->middlename,
@@ -156,6 +168,12 @@ class Profiles extends Controller
                 'phone' => $request->phone,
                 'user_id' => $user->id,
             ]);
+
+            try {
+                Mail::to($request->email)->send(new NewAccountWelcome($user, 'password'));
+            } catch (\Exception $e) {
+                Log::error("Failed to send staff welcome email: " . $e->getMessage());
+            }
 
             return response()->json(['message' => 'Staff Profile Created Sucessfully!'], 200);
         }
@@ -298,7 +316,7 @@ class Profiles extends Controller
         ]);
 
         if ($user) {
-            $parent = Guardian::create([
+            Guardian::create([
                 'name' => $request->name,
                 'role' => 'parent',
                 'address' => $request->address,
@@ -306,6 +324,12 @@ class Profiles extends Controller
                 'phone' => $request->phone,
                 'user_id' => $user->id,
             ]);
+
+            try {
+                Mail::to($request->email)->send(new NewAccountWelcome($user, 'password'));
+            } catch (\Exception $e) {
+                Log::error("Failed to send parent welcome email: " . $e->getMessage());
+            }
 
             return response()->json(['message' => 'Parent Profile Created Sucessfully!'], 200);
         }
@@ -366,13 +390,19 @@ class Profiles extends Controller
         ]);
 
         if ($user) {
-            $admin = Admin::create([
+            Admin::create([
                 'name' => $request->name,
                 'role' => 'admin',
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'user_id' => $user->id,
             ]);
+
+            try {
+                Mail::to($request->email)->send(new NewAccountWelcome($user, 'password'));
+            } catch (\Exception $e) {
+                Log::error("Failed to send admin welcome email: " . $e->getMessage());
+            }
 
             return response()->json(['message' => 'Administrator Profile Created Sucessfully!'], 200);
         }

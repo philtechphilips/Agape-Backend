@@ -79,7 +79,11 @@ class StudentApplication extends Controller
             Log::error("Failed to send admin emails: " . $e->getMessage());
         }
 
-        return response()->json(['message' => 'Application Submitted Sucessfully!', 'appNum' => $app_num, 'application' => $application], 200);
+        return response()->json([
+            'message' => 'Registration complete! Check your email for confirmation.',
+            'appNum' => $app_num,
+            'application' => $application
+        ], 200);
     }
 
 
@@ -97,9 +101,26 @@ class StudentApplication extends Controller
 
     public function FetchAllApplications(Request $request)
     {
-        $application = Application::all();
+        $applications = Application::orderBy('created_at', 'desc')->paginate(15);
 
-        return response()->json(['message' => 'Application Fetched Sucessfully!', 'application' => $application], 200);
+        return response()->json([
+            'message' => 'Applications fetched successfully!', 
+            'application' => $applications->items(),
+            'meta' => [
+                'has_more' => $applications->hasMorePages(),
+                'total' => $applications->total()
+            ]
+        ], 200);
+    }
+
+    public function ExportApplications(Request $request)
+    {
+        $applications = Application::orderBy('created_at', 'desc')->get();
+
+        return response()->json([
+            'message' => 'Data prepared for export!', 
+            'application' => $applications
+        ], 200);
     }
 
     public function DeleteApplication($app_num, Request $request)
