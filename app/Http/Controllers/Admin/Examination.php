@@ -195,6 +195,23 @@ class Examination extends Controller
             $grade = $results['grade'];
             $remarks = $results['remarks'];
 
+            // Scoped to the session: without it a result from an earlier academic
+            // year (same term/exam/section) blocks entry for the current one.
+            $existingRecord = MockResult::where([
+                'stuId' => $result['stuId'],
+                'subject' => $result['subject'],
+                'termId' => $result['term']['id'],
+                'examId' => $result['exam'],
+                'section' => $result['section'],
+                'session' => $result['session'],
+            ])->first();
+
+            if ($existingRecord) {
+                return response()->json(['message' => 'Result Exist!'], 400);
+            }
+
+            // Created only once the record above is known to be storable, otherwise
+            // an aborted save leaves a report card with no results behind it.
             $existingResultForTerm = Result::where([
                 'stuId' => $result['stuId'],
                 'termId' => $result['term']['id'],
@@ -211,18 +228,6 @@ class Examination extends Controller
                 $term_result->session = $result['session'];
                 $term_result->classId = $result['classId'];
                 $term_result->save();
-            }
-
-            $existingRecord = MockResult::where([
-                'stuId' => $result['stuId'],
-                'subject' => $result['subject'],
-                'termId' => $result['term']['id'],
-                'examId' => $result['exam'],
-                'section' => $result['section'],
-            ])->first();
-
-            if ($existingRecord) {
-                return response()->json(['message' => 'Result Exist!'], 400);
             }
 
             $first_term_result = new MockResult();
@@ -287,6 +292,23 @@ class Examination extends Controller
         foreach ($request->selectedData as $result) {
             $total = $result['examMarks'];
 
+            // Scoped to the session: without it a result from an earlier academic
+            // year (same term/exam/section) blocks entry for the current one.
+            $existingRecord = MidtermResult::where([
+                'stuId' => $result['stuId'],
+                'subject' => $result['subject'],
+                'termId' => $result['term']['id'],
+                'examId' => $result['exam'],
+                'section' => $result['section'],
+                'session' => $result['session'],
+            ])->first();
+
+            if ($existingRecord) {
+                return response()->json(['message' => 'Result Exist!'], 400);
+            }
+
+            // Created only once the record above is known to be storable, otherwise
+            // an aborted save leaves a report card with no results behind it.
             $existingResultForTerm = Result::where([
                 'stuId' => $result['stuId'],
                 'termId' => $result['term']['id'],
@@ -303,18 +325,6 @@ class Examination extends Controller
                 $term_result->session = $result['session'];
                 $term_result->classId = $result['classId'];
                 $term_result->save();
-            }
-
-            $existingRecord = MidtermResult::where([
-                'stuId' => $result['stuId'],
-                'subject' => $result['subject'],
-                'termId' => $result['term']['id'],
-                'examId' => $result['exam'],
-                'section' => $result['section'],
-            ])->first();
-
-            if ($existingRecord) {
-                return response()->json(['message' => 'Result Exist!'], 400);
             }
 
             $first_term_result = new MidtermResult();
@@ -443,6 +453,23 @@ class Examination extends Controller
             $grade = $results['grade'];
             $remarks = $results['remarks'];
 
+            // Scoped to the session: without it a result from an earlier academic
+            // year (same term/exam/section) blocks entry for the current one.
+            $existingRecord = MockResult::where([
+                'stuId' => $result['stuId'],
+                'subject' => $result['subject'],
+                'termId' => $result['term']['id'],
+                'examId' => $result['exam'],
+                'section' => $result['section'],
+                'session' => $result['session'],
+            ])->first();
+
+            if ($existingRecord) {
+                return response()->json(['message' => 'Result Exist!'], 400);
+            }
+
+            // Created only once the record above is known to be storable, otherwise
+            // an aborted save leaves a report card with no results behind it.
             $existingResultForTerm = Result::where([
                 'stuId' => $result['stuId'],
                 'termId' => $result['term']['id'],
@@ -459,18 +486,6 @@ class Examination extends Controller
                 $term_result->session = $result['session'];
                 $term_result->classId = $result['classId'];
                 $term_result->save();
-            }
-
-            $existingRecord = MockResult::where([
-                'stuId' => $result['stuId'],
-                'subject' => $result['subject'],
-                'termId' => $result['term']['id'],
-                'examId' => $result['exam'],
-                'section' => $result['section'],
-            ])->first();
-
-            if ($existingRecord) {
-                return response()->json(['message' => 'Result Exist!'], 400);
             }
 
             $first_term_result = new MockResult();
@@ -516,12 +531,16 @@ class Examination extends Controller
                 return response()->json(['message' => 'Record not found!'], 404);
             }
 
+            // Session-scoped so an edit cannot land on the same student's record
+            // from a previous academic year, which ->first() would otherwise return.
             $existingRecord = MockResult::where([
                 'stuId' => $result['stuId'],
                 'subject' => $result['subject'],
                 'examId' => $result['exam'],
                 'section' => $result['section'],
-            ])->first();
+            ])
+                ->when($result['session'] ?? null, fn($query, $session) => $query->where('session', $session))
+                ->first();
 
             if (!$existingRecord) {
                 return response()->json(['message' => 'Record not found!'], 404);
@@ -627,6 +646,23 @@ class Examination extends Controller
             $grade = $results['grade'];
             $remarks = $results['remarks'];
 
+            // Scoped to the session: without it a result from an earlier academic
+            // year (same term/exam/section) blocks entry for the current one.
+            $existingRecord = ThirdTermResult::where([
+                'stuId' => $result['stuId'],
+                'subject' => $result['subject'],
+                'termId' => $result['term']['id'],
+                'examId' => $result['exam'],
+                'section' => $result['section'],
+                'session' => $result['session'],
+            ])->first();
+
+            if ($existingRecord) {
+                return response()->json(['message' => 'Result Exist!'], 400);
+            }
+
+            // Created only once the record above is known to be storable, otherwise
+            // an aborted save leaves a report card with no results behind it.
             $existingResultForTerm = Result::where([
                 'stuId' => $result['stuId'],
                 'termId' => $result['term']['id'],
@@ -643,18 +679,6 @@ class Examination extends Controller
                 $term_result->session = $result['session'];
                 $term_result->classId = $result['classId'];
                 $term_result->save();
-            }
-
-            $existingRecord = ThirdTermResult::where([
-                'stuId' => $result['stuId'],
-                'subject' => $result['subject'],
-                'termId' => $result['term']['id'],
-                'examId' => $result['exam'],
-                'section' => $result['section'],
-            ])->first();
-
-            if ($existingRecord) {
-                return response()->json(['message' => 'Result Exist!'], 400);
             }
 
             $first_term_result = new ThirdTermResult();
@@ -744,14 +768,41 @@ class Examination extends Controller
     }
 
 
-    public function FetchFirstTermResultForSecondReport($class, $exam, $subject)
+    /**
+     * Each term of an academic year is its own `sessions` row, so carrying a score
+     * forward means looking at a *different* session id than the one being entered.
+     * Given the session being worked on, resolve the sibling row for $termId within
+     * the same academic year (e.g. entering 3rd Term 2025/2026 -> 2nd Term 2025/2026).
+     * Returns null when it cannot be resolved, so callers fall back to no filtering.
+     */
+    private function resolveSessionForTerm($session, $termId)
+    {
+        if (!$session) {
+            return null;
+        }
+
+        $current = Session::find($session);
+        if (!$current) {
+            return null;
+        }
+
+        $sibling = Session::where('session', $current->session)
+            ->where('term', $termId)
+            ->first();
+
+        return $sibling ? $sibling->id : null;
+    }
+
+    public function FetchFirstTermResultForSecondReport($class, $exam, $subject, $session = null)
     {
         $subject = Subject::find($subject);
+        $firstTermSession = $this->resolveSessionForTerm($session, 1);
         $examResults = FirstTermResults::with(['exam', 'class', 'student', 'term'])
             ->where('term', "1st Term")
             ->where('classId', $class)
             ->where('examId', $exam)
             ->where('subject', $subject->subject)
+            ->when($firstTermSession, fn($query) => $query->where('session', $firstTermSession))
             ->get();
         return response()->json($examResults, 200);
     }
@@ -768,14 +819,16 @@ class Examination extends Controller
         return response()->json($examResults, 200);
     }
 
-    public function FetchSecondTermResultForThirdReport($class, $exam, $subject)
+    public function FetchSecondTermResultForThirdReport($class, $exam, $subject, $session = null)
     {
         $subject = Subject::find($subject);
+        $secondTermSession = $this->resolveSessionForTerm($session, 2);
         $examResults = SecondTermResult::with(['exam', 'class', 'student', 'term'])
             ->where('term', "2nd Term")
             ->where('classId', $class)
             ->where('examId', $exam)
             ->where('subject', $subject->subject)
+            ->when($secondTermSession, fn($query) => $query->where('session', $secondTermSession))
             ->get();
         return response()->json($examResults, 200);
     }
@@ -854,13 +907,17 @@ class Examination extends Controller
             $grade = $results['grade'];
             $remarks = $results['remarks'];
 
+            // Session-scoped so an edit cannot land on the same student's record
+            // from a previous academic year, which ->first() would otherwise return.
             $existingRecord = FirstTermResults::where([
                 'stuId' => $result['stuId'],
                 'subject' => $result['subject'],
                 'termId' => $result['term'],
                 'examId' => $result['exam'],
                 'section' => $result['section'],
-            ])->first();
+            ])
+                ->when($result['session'] ?? null, fn($query, $session) => $query->where('session', $session))
+                ->first();
 
             if (!$existingRecord) {
                 return response()->json(['message' => 'Record not found!'], 404);
@@ -890,13 +947,17 @@ class Examination extends Controller
             $grade = $results['grade'];
             $remarks = $results['remarks'];
 
+            // Session-scoped so an edit cannot land on the same student's record
+            // from a previous academic year, which ->first() would otherwise return.
             $existingRecord = SecondTermResult::where([
                 'stuId' => $result['stuId'],
                 'subject' => $result['subject'],
                 'termId' => $result['term'],
                 'examId' => $result['exam'],
                 'section' => $result['section'],
-            ])->first();
+            ])
+                ->when($result['session'] ?? null, fn($query, $session) => $query->where('session', $session))
+                ->first();
 
             if (!$existingRecord) {
                 return response()->json(['message' => 'Record not found!'], 404);
@@ -941,13 +1002,17 @@ class Examination extends Controller
 
             Log::info($results);
 
+            // Session-scoped so an edit cannot land on the same student's record
+            // from a previous academic year, which ->first() would otherwise return.
             $existingRecord = ThirdTermResult::where([
                 'stuId' => $result['stuId'],
                 'subject' => $result['subject'],
                 'termId' => $result['term'],
                 'examId' => $result['exam'],
                 'section' => $result['section'],
-            ])->first();
+            ])
+                ->when($result['session'] ?? null, fn($query, $session) => $query->where('session', $session))
+                ->first();
 
             if (!$existingRecord) {
                 return response()->json(['message' => 'Record not found!'], 404);
@@ -1104,8 +1169,7 @@ class Examination extends Controller
 
     public function FetchAppraisals($session, $class, $exam)
     {
-        $appraisals = Appraisal::with(['exam', 'session', 'class', 'student', 'term'])
-            ->where('session', $session)
+        $appraisals = Appraisal::where('session', $session)
             ->where('classId', $class)
             ->where('examId', $exam)
             ->get();

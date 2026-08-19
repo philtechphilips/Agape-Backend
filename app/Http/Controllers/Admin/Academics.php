@@ -51,12 +51,30 @@ class Academics extends Controller
         return response()->json(['message' => 'Subject Created Sucessfully!'], 200);
     }
 
-    public function GetClass()
+    public function GetClass(Request $request)
     {
         $query = ClassName::with('sections', 'teachers')
             ->withCount(['students' => function ($query) {
                 $query->where('status', 'Active')->orWhere('status', 'active');
             }]);
+
+        // Most callers use this to populate a class dropdown and need every
+        // class, so only paginate when the caller explicitly asks for a page.
+        if (!$request->filled('page')) {
+            $classes = $query->get();
+
+            return response()->json([
+                'data' => $classes,
+                'meta' => [
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => $classes->count(),
+                    'total' => $classes->count(),
+                    'has_more' => false,
+                ]
+            ]);
+        }
+
         return $this->paginateResponse($query, 10);
     }
 
